@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>नेपाली Tic-Tac-Toe Pro - Series Arena</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Poppins:400,500,700" rel="stylesheet">
+    
+    <style>
+        :root {
+            --nepal-red: #dc143c;
+            --nepal-blue: #003893;
+            --dark-bg: #0a1128;
+            --dark-card: #1c2541;
+            --dark-cell: #0b132b;
+            --gold: #ffd700;
+        }
+
+        body {
+            background: radial-gradient(circle, var(--dark-card), var(--dark-bg));
+            color: #ffffff;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-wrapper-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--dark-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .game-title {
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 2px 2px 0px var(--nepal-red);
+            letter-spacing: 0.5px;
+        }
+
+        .game-input {
+            background-color: var(--dark-cell) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+            padding: 12px;
+        }
+
+        .game-input:focus {
+            border-color: var(--nepal-red) !important;
+            box-shadow: 0 0 0 0.25rem rgba(220, 20, 60, 0.2) !important;
+        }
+
+        .btn-outline-nepal {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        .btn-check:checked + .btn-outline-nepal {
+            background-color: var(--nepal-blue) !important;
+            border-color: var(--nepal-blue) !important;
+            color: #ffffff !important;
+        }
+
+        .btn-nepal-primary {
+            background-color: var(--nepal-red);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nepal-primary:hover {
+            background-color: #ff2a53;
+            transform: translateY(-1px);
+        }
+
+        .btn-nepal-secondary {
+            background-color: transparent;
+            border: 2px solid var(--nepal-blue);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-nepal-secondary:hover {
+            background-color: var(--nepal-blue);
+            color: #ffffff;
+        }
+
+        /* Scoreboard Assembly */
+        .game-scoreboard {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .score-name { font-size: 0.85rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .score-num { font-size: 2.2rem; font-weight: 800; color: var(--gold); }
+        .score-vs { font-weight: 900; color: var(--nepal-red); font-size: 1.2rem; }
+        .game-status { font-weight: 500; color: #f8fafc; font-size: 1.1rem; min-height: 27px; }
+
+        /* The Grid Board */
+        .game-board-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            background-color: var(--nepal-blue);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .game-cell {
+            aspect-ratio: 1 / 1;
+            background-color: var(--dark-cell);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.6rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s, transform 0.1s;
+            user-select: none;
+        }
+
+        .game-cell:hover { background-color: #152238; }
+        .game-cell:active { transform: scale(0.96); }
+
+        .game-cell.x::before { content: "⚔️"; }
+        .game-cell.o::before { content: "🏔️"; }
+
+        .game-winning-cell {
+            background-color: var(--gold) !important;
+            animation: tileGlowPulse 1.2s infinite;
+        }
+
+        /* Winner Screen Specifics */
+        .winner-highlight { font-size: 2.6rem; font-weight: 800; color: var(--gold); text-shadow: 0px 4px 15px rgba(255, 215, 0, 0.3); }
+        .game-celebrate-icon { font-size: 5.5rem; animation: trophyBounce 2s infinite ease-in-out; }
+
+        @keyframes tileGlowPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); background-color: #ffe033 !important; }
+        }
+
+        @keyframes trophyBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card game-wrapper-card shadow-lg">
+        <div class="card-header">
+            <h2 class="game-title">नेपाली Tic-Tac-Toe</h2>
+            <span class="text-muted small">Himalayan Series Arena</span>
+        </div>
+        
+        <div class="card-body p-4">
+            
+            <div id="game-setup-box">
+                <h4 class="mb-4 text-center text-white font-weight-bold">Match Settings</h4>
+                <div class="mb-3">
+                    <label class="form-label text-start text-secondary small">Player 1 Name</label>
+                    <input type="text" id="game-p1-input" class="form-control game-input" placeholder="Default: Khukuri ⚔️">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-start text-secondary small">Player 2 Name</label>
+                    <input type="text" id="game-p2-input" class="form-control game-input" placeholder="Default: Everest 🏔️">
+                </div>
+                
+                <div class="mb-4 text-center">
+                    <span class="d-block mb-2 text-secondary small">Select Series Configuration:</span>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="matchSeries" id="series1" value="1" checked>
+                        <label class="btn btn-outline-nepal" for="series1">Single Match</label>
+
+                        <input type="radio" class="btn-check" name="matchSeries" id="series3" value="3">
+                        <label class="btn btn-outline-nepal" for="series3">Best of 3</label>
+
+                        <input type="radio" class="btn-check" name="matchSeries" id="series5" value="5">
+                        <label class="btn btn-outline-nepal" for="series5">Best of 5</label>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-nepal-primary w-100 py-2 fs-5" onclick="startGameEngine()">Start Match</button>
+                <div class="text-center mt-3">
+                    <a href="index.html" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left"></i> Return to Portfolio</a>
+                </div>
+            </div>
+
+            <div id="game-play-box" style="display: none;">
+                <div class="game-scoreboard d-flex justify-content-around align-items-center mb-4">
+                    <div class="score-box text-center">
+                        <span id="label-p1" class="score-name">Player 1</span>
+                        <div id="score-p1" class="score-num">0</div>
+                    </div>
+                    <div class="score-vs">VS</div>
+                    <div class="score-box text-center">
+                        <span id="label-p2" class="score-name">Player 2</span>
+                        <div id="score-p2" class="score-num">0</div>
+                    </div>
+                </div>
+
+                <div class="game-status text-center mb-3" id="game-live-status">Initializing Game...</div>
+
+                <div class="game-board-grid mb-4">
+                    <div class="game-cell" data-cell-idx="0"></div>
+                    <div class="game-cell" data-cell-idx="1"></div>
+                    <div class="game-cell" data-cell-idx="2"></div>
+                    <div class="game-cell" data-cell-idx="3"></div>
+                    <div class="game-cell" data-cell-idx="4"></div>
+                    <div class="game-cell" data-cell-idx="5"></div>
+                    <div class="game-cell" data-cell-idx="6"></div>
+                    <div class="game-cell" data-cell-idx="7"></div>
+                    <div class="game-cell" data-cell-idx="8"></div>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" id="game-reset-btn" class="btn btn-nepal-secondary px-5 py-2" onclick="advanceNextRound()">Next Round</button>
+                </div>
+            </div>
+
+            <div id="game-winner-box" style="display: none;" class="text-center py-4">
+                <div class="game-celebrate-icon mb-2" id="final-winner-icon">🏆</div>
+                <h4 class="text-secondary tracking-widest uppercase small">CHAMPION</h4>
+                <h2 id="final-winner-name" class="my-3 winner-highlight">Player</h2>
+                <p class="text-muted">Conquered the entire series match!</p>
+                <button type="button" class="btn btn-nepal-primary mt-4 px-5 py-2 fs-5" onclick="resetWholeEngine()">Play New Series</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let p1Name = "Khukuri";
+        let p2Name = "Everest";
+        let score1 = 0;
+        let score2 = 0;
+        let targetWins = 1;
+
+        let isRoundActive = false;
+        let turnToken = "x"; 
+        let matrixState = ["", "", "", "", "", "", "", "", ""];
+
+        const winTriggers = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        const viewSetup = document.getElementById('game-setup-box');
+        const viewPlay = document.getElementById('game-play-box');
+        const viewWinner = document.getElementById('game-winner-box');
+        const liveStatusNode = document.getElementById('game-live-status');
+        const gameCells = document.querySelectorAll('.game-cell');
+
+        function startGameEngine() {
+            p1Name = document.getElementById('game-p1-input').value.trim() || "Khukuri";
+            p2Name = document.getElementById('game-p2-input').value.trim() || "Everest";
+
+            const configuredVal = document.querySelector('input[name="matchSeries"]:checked').value;
+            targetWins = Math.ceil(configuredVal / 2);
+
+            document.getElementById('label-p1').innerText = p1Name;
+            document.getElementById('label-p2').innerText = p2Name;
+
+            score1 = 0;
+            score2 = 0;
+            refreshScoreboardUI();
+
+            viewSetup.style.display = 'none';
+            viewWinner.style.display = 'none';
+            viewPlay.style.display = 'block';
+
+            initiateFreshRound();
+        }
+
+        function cellInteractionRouter(e) {
+            const node = e.target;
+            const targetIdx = parseInt(node.getAttribute('data-cell-idx'));
+
+            if (matrixState[targetIdx] !== "" || !isRoundActive) return;
+
+            matrixState[targetIdx] = turnToken;
+            node.classList.add(turnToken);
+
+            evaluateGridMatrix();
+        }
+
+        function evaluateGridMatrix() {
+            let roundWon = false;
+
+            for (let i = 0; i < winTriggers.length; i++) {
+                const [a, b, c] = winTriggers[i];
+                if (matrixState[a] && matrixState[a] === matrixState[b] && matrixState[a] === matrixState[c]) {
+                    roundWon = true;
+                    [a, b, c].forEach(idx => gameCells[idx].classList.add('game-winning-cell'));
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                if (turnToken === "x") score1++; else score2++;
+                refreshScoreboardUI();
+                isRoundActive = false;
+
+                if (score1 === targetWins || score2 === targetWins) {
+                    setTimeout(() => {
+                        triggerSeriesChampionView(turnToken === 'x' ? p1Name : p2Name, turnToken === 'x' ? '⚔️' : '🏔️');
+                    }, 1000);
+                } else {
+                    liveStatusNode.innerHTML = `<span class="text-warning">Round won by ${turnToken === 'x' ? p1Name : p2Name}!</span>`;
+                }
+                return;
+            }
+
+            if (!matrixState.includes("")) {
+                liveStatusNode.innerHTML = `<span class="text-info">Round Draw! (Barabar)</span>`;
+                isRoundActive = false;
+                return;
+            }
+
+            turnToken = turnToken === "x" ? "o" : "x";
+            renderLiveStatusString();
+        }
+
+        function renderLiveStatusString() {
+            liveStatusNode.innerText = `Turn: ${turnToken === 'x' ? p1Name + ' (⚔️)' : p2Name + ' (🏔️)'}`;
+        }
+
+        function refreshScoreboardUI() {
+            document.getElementById('score-p1').innerText = score1;
+            document.getElementById('score-p2').innerText = score2;
+        }
+
+        function advanceNextRound() {
+            if (score1 === targetWins || score2 === targetWins) return;
+            initiateFreshRound();
+        }
+
+        function initiateFreshRound() {
+            matrixState = ["", "", "", "", "", "", "", "", ""];
+            isRoundActive = true;
+            turnToken = "x";
+            gameCells.forEach(cell => cell.className = 'game-cell');
+            renderLiveStatusString();
+        }
+
+        function triggerSeriesChampionView(champName, champIcon) {
+            viewPlay.style.display = 'none';
+            document.getElementById('final-winner-name').innerText = champName;
+            document.getElementById('final-winner-icon').innerText = champIcon;
+            viewWinner.style.display = 'block';
+        }
+
+        function resetWholeEngine() {
+            document.getElementById('game-p1-input').value = '';
+            document.getElementById('game-p2-input').value = '';
+            viewWinner.style.display = 'none';
+            viewPlay.style.display = 'none';
+            viewSetup.style.display = 'block';
+        }
+
+        gameCells.forEach(cell => cell.addEventListener('click', cellInteractionRouter));
+    </script>
+</body>
+</html>

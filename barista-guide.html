@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standardized Barista Guide & Technical Workspace</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .glass-card {
+            background: rgba(9, 13, 22, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.08);
+            transform: translateY(-2px);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #f59e0b;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.2);
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 font-sans min-h-screen selection:bg-amber-600 selection:text-black overflow-x-hidden">
+
+    <div class="absolute top-0 left-0 right-0 h-[600px] bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-8 md:p-12 z-10 relative">
+        
+        <header class="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div class="max-w-2xl">
+                <a href="index.html" class="text-xs sm:text-sm text-amber-500 hover:text-amber-400 transition-colors duration-200 mb-4 inline-flex items-center gap-2 group font-semibold">
+                    <i class="bi bi-arrow-left group-hover:-translate-x-1 transition-transform"></i> Return to Portfolio
+                </a>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-amber-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent uppercase">
+                    Commercial Coffee Blueprints
+                </h1>
+                <p class="text-gray-400 mt-2 text-xs sm:text-sm leading-relaxed">
+                    Standardized formulas with advanced microfluidic tracking. Adjust calibration metrics directly on the catalog slots, or select a profile to deploy its full multi-tier brewing spec sheet.
+                </p>
+            </div>
+
+            <div class="w-full md:w-80 relative shrink-0">
+                <i class="bi bi-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                <input type="text" id="searchInput" oninput="handleSearchFilter()" placeholder="Search blueprints..." class="w-full pl-10 pr-10 py-2.5 bg-gray-900 border border-gray-800 focus:border-amber-500/50 rounded-xl text-sm text-gray-200 placeholder-gray-500 transition-colors focus:outline-none focus:ring-1 focus:ring-amber-500/30">
+                <button onclick="clearSearchField()" id="searchClearBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors cursor-pointer"><i class="bi bi-x-circle-fill text-xs"></i></button>
+            </div>
+        </header>
+
+        <div class="flex gap-2 mb-8 flex-wrap">
+            <button onclick="filterCategory('all')" id="cat-all" class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-amber-500 bg-amber-500 text-black cursor-pointer transition-all">All Specs</button>
+            <button onclick="filterCategory('espresso')" id="cat-espresso" class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-gray-800 text-gray-400 hover:text-white cursor-pointer transition-all">Pure Espresso</button>
+            <button onclick="filterCategory('milk')" id="cat-milk" class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-gray-800 text-gray-400 hover:text-white cursor-pointer transition-all">Milk Systems</button>
+            <button onclick="filterCategory('hybrid')" id="cat-hybrid" class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-gray-800 text-gray-400 hover:text-white cursor-pointer transition-all">Composites</button>
+        </div>
+
+        <div id="blueprint-workspace" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+        <div id="emptySearchPrompt" class="hidden flex-col items-center justify-center py-24 text-center">
+            <div class="w-14 h-14 rounded-full border border-dashed border-gray-800 flex items-center justify-center text-gray-600 mb-4">
+                <i class="bi bi-patch-question text-xl"></i>
+            </div>
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">No Matches Registered</h3>
+            <p class="text-xs text-gray-500 max-w-xs mt-1">Adjust search parameters or switch active categories to isolate catalog records.</p>
+        </div>
+    </div>
+
+    <div id="specModal" onclick="dismissSpecModal(event)" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden opacity-0 transition-all duration-300 items-center justify-center p-4">
+        <div id="modalBox" class="bg-slate-900 border border-gray-800/80 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col scale-95 opacity-0 transition-all duration-300 overflow-hidden" onclick="event.stopPropagation()">
+            
+            <div class="p-6 border-b border-gray-800/80 flex justify-between items-start gap-4 shrink-0 bg-slate-900/50 backdrop-blur">
+                <div>
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span id="specTag" class="text-[9px] font-black tracking-widest text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20 uppercase">Core Data Log</span>
+                        <span class="text-[9px] font-mono text-gray-500 uppercase tracking-wider">ID: <span id="specCode">0x0</span></span>
+                    </div>
+                    <h2 id="specTitle" class="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Beverage Sheet</h2>
+                </div>
+                <button onclick="closeSpecModal()" class="text-gray-400 w-8 h-8 rounded-full bg-gray-800/60 flex items-center justify-center text-lg hover:text-white hover:bg-gray-800 transition-all cursor-pointer">
+                    <i class="bi bi-x-lg text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-950/20">
+                <div id="specGraphicFrame" class="w-full h-44 bg-gray-950 rounded-xl border border-gray-900 p-4 flex items-center justify-center shadow-inner mb-6 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[radial-gradient(#1f293740_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-6 font-mono">
+                    <div class="p-3 bg-gray-950/80 rounded-xl border border-gray-900">
+                        <span class="text-gray-500 block text-[9px] uppercase font-bold tracking-wider mb-0.5">Thermodynamic Target</span>
+                        <span id="specTemp" class="text-amber-400 text-xs font-bold">0°C</span>
+                    </div>
+                    <div class="p-3 bg-gray-950/80 rounded-xl border border-gray-900">
+                        <span class="text-gray-500 block text-[9px] uppercase font-bold tracking-wider mb-0.5">Extraction Yield</span>
+                        <span id="specRatio" class="text-cyan-400 text-xs font-bold">1:0</span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2 border-b border-gray-800 pb-1 font-mono">Technical Brief</h4>
+                    <p id="specDescription" class="text-xs text-gray-300 leading-relaxed text-justify">Select profile asset for parsing structural descriptions.</p>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3 border-b border-gray-800 pb-1 font-mono">Standardized Preparation Sequence</h4>
+                    <div id="specStepsContainer" class="flex flex-col gap-2"></div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3 border-b border-gray-800 pb-1 font-mono">Microstructure Stratum Definitions</h4>
+                    <div id="specLayersContainer" class="flex flex-col gap-2.5"></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-800/80 bg-slate-900/50 shrink-0">
+                <a id="specGuideBtn" href="#" target="_blank" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/5">
+                    <i class="bi bi-play-circle-fill text-sm"></i> Launch Preparation Masterclass Guide
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Central Standardized Coffee Registry Database Matrix
+        const blueprintRegistry = [
+            {
+                id: "espresso",
+                category: "espresso",
+                title: "Espresso Shot",
+                tag: "Core Extraction",
+                stdVolume: 60, 
+                minVol: 30, maxVol: 90, stepVol: 15,
+                ratio: "1:2 Compound Yield",
+                tempRange: "90°C - 93°C Heat Extraction",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 32 Q 50 35, 80 32 L 80 48 Q 50 51, 20 48 Z" fill="#1f110a" stroke="#f59e0b" stroke-width="0.5"/><path d="M20 18 Q 50 21, 80 18 L 80 32 Q 50 35, 20 32 Z" fill="#b45309" opacity="0.85" stroke="#f59e0b" stroke-width="0.5"/><text x="50" y="43" fill="#9ca3af" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">SOLUBLE BODY</text><text x="50" y="27" fill="#fef3c7" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">LIPID CREMA</text></svg>`,
+                description: "The baseline foundational global standard extracted at 9 bars of atmospheric machine pressure. It consists of high concentration coffee solids suspended in a micro-emulsified oil matrix, crowned safely under volatile carbon dioxide surface crema compounds.",
+                brewingSequence: [
+                    "Dose 18g of finely ground coffee into a clean, dry double portafilter basket.",
+                    "Distribute evenly and execute a level tamp of approximately 15kg of force.",
+                    "Flush the group head briefly to clear loose residual heat or grinds.",
+                    "Lock portafilter and execute an extraction cycle targeted at 25-30 seconds to hit standard mass yield."
+                ],
+                layers: [
+                    { name: "Lipid Crema Cap", percent: 15, color: "bg-gradient-to-r from-amber-600 to-amber-700 border-amber-500 text-amber-100", note: "Carbon dioxide gas bubbles micro-emulsified firmly within suspended aromatic lipid compounds." },
+                    { name: "Soluble Extraction Core", percent: 85, color: "bg-gradient-to-r from-stone-900 to-amber-950 border-stone-800 text-stone-300", note: "Thick, high-density soluble coffee solids holding the primary acidic origin flavor spectrum notes." }
+                ]
+            },
+            {
+                id: "ristretto",
+                category: "espresso",
+                title: "Ristretto Shot",
+                tag: "Restricted Pull",
+                stdVolume: 45,
+                minVol: 20, maxVol: 60, stepVol: 5,
+                ratio: "1:1.5 Restricted Yield",
+                tempRange: "92°C High Stabilization",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 34 L 80 34 L 80 48 Q 50 51, 20 48 Z" fill="#140802" stroke="#f59e0b" stroke-width="0.5"/><path d="M20 20 Q 50 23, 80 20 L 80 34 L 20 34 Z" fill="#9a3412" opacity="0.9" stroke="#f59e0b" stroke-width="0.5"/><text x="50" y="44" fill="#9ca3af" font-size="4" font-family="monospace" font-weight="bold" text-anchor="middle">RESTRICTED SYRUP</text><text x="50" y="29" fill="#fef3c7" font-size="4" font-family="monospace" font-weight="bold" text-anchor="middle">CREMA CROWN</text></svg>`,
+                description: "A short-pulled restricted espresso cycle optimizing raw flavor extraction. Halts filtration prior to the breakdown of heavier bitter components, keeping the physical solution concentrated, syrupy, and sweet.",
+                brewingSequence: [
+                    "Prepare 18g dry dose utilizing a slightly finer grind alignment than standard espresso.",
+                    "Execute standard leveling and level compression tamping routines.",
+                    "Initiate pump cycle but truncate water throughput early, halting at a 1:1.5 brew ratio.",
+                    "Finalize cycle within a tight 18-22 second operational limit to maintain sweet syrup concentration."
+                ],
+                layers: [
+                    { name: "Velvety Crema Layer", percent: 25, color: "bg-gradient-to-r from-amber-700 to-amber-800 border-amber-600 text-amber-100", note: "Increased structural layer density due to truncated processing times." },
+                    { name: "Concentrated Syrup Base", percent: 75, color: "bg-gradient-to-r from-black to-stone-950 border-black text-stone-400", note: "Pure premium origin essential extraction compounds housing minimal bitterness markers." }
+                ]
+            },
+            {
+                id: "lungo",
+                category: "espresso",
+                title: "Lungo Shot",
+                tag: "Extended Mass",
+                stdVolume: 90,
+                minVol: 60, maxVol: 120, stepVol: 15,
+                ratio: "1:3 Extended Fluid",
+                tempRange: "90°C Thermal Profile",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 24 L 80 24 L 80 48 Q 50 51, 20 48 Z" fill="#3b2314" stroke="#f59e0b" stroke-width="0.5"/><path d="M20 12 Q 50 14, 80 12 L 80 24 L 20 24 Z" fill="#d97706" opacity="0.6" stroke="#f59e0b" stroke-width="0.5"/><text x="50" y="38" fill="#d1d5db" font-size="4" font-family="monospace" text-anchor="middle">EXTENDED EXTRCT</text><text x="50" y="19" fill="#fff" font-size="4" font-family="monospace" text-anchor="middle">THIN CREMA</text></svg>`,
+                description: "An extended long-pull espresso formula. By forcing higher water volume through the coffee puck, it brings forward more nuanced compounds and roasty notes that aren't fully captured in a standard shot.",
+                brewingSequence: [
+                    "Load an 18g double basket using a fractionally coarser grind index.",
+                    "Lock portafilter and allow the machine extraction to run continuously to a high 1:3 ratio.",
+                    "Let the extraction continue for 35-40 seconds to draw out the full target fluid volume.",
+                    "Serve immediately as a clean, high-clarity black base with a characteristically thinner crema layer."
+                ],
+                layers: [
+                    { name: "Thin Dissolved Crema", percent: 10, color: "bg-amber-600/60 border-amber-500 text-amber-100", note: "Stretched surface tension containing late-extraction bitter notes." },
+                    { name: "High Volume Coffee Solubles", percent: 90, color: "bg-stone-900/90 border-stone-800 text-stone-300", note: "Extended solution holding high levels of caffeine and late-phase roast compounds." }
+                ]
+            },
+            {
+                id: "cortado",
+                category: "milk",
+                title: "Cortado",
+                tag: "Equilateral Ratio",
+                stdVolume: 120,
+                minVol: 90, maxVol: 150, stepVol: 10,
+                ratio: "1:1 Balanced System",
+                tempRange: "55°C - 60°C Low Heat",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 30 L 80 30 L 80 48 Q 50 51, 20 48 Z" fill="#1f110a"/><path d="M20 14 L 80 14 L 80 30 L 20 30 Z" fill="#c49a6c"/><path d="M20 8 L 80 8 L 80 14 L 20 14 Z" fill="#fafafa"/><text x="50" y="42" fill="#9ca3af" font-size="4" font-family="monospace" text-anchor="middle">ESPRESSO (50%)</text><text x="50" y="24" fill="#fff" font-size="4" font-family="monospace" text-anchor="middle">STEAMED MILK (50%)</text></svg>`,
+                description: "A finely calibrated Spanish-style drink built with an exact 1:1 ratio. A full double espresso shot is cut with an equal volume of steamed milk, textured with very little aeration to keep the texture silky and dense rather than frothy.",
+                brewingSequence: [
+                    "Pull a standard 60 mL double espresso extraction directly into a small 120 mL glass vessel.",
+                    "Steam fresh whole milk to a cooler 55°C target, texturing with minimal air integration.",
+                    "Slowly pour the smooth, un-aerated steamed milk into the espresso base at a low angle.",
+                    "Finish with a clean, flat surface layer, keeping a clear balance between the coffee and dairy."
+                ],
+                layers: [
+                    { name: "Flat Texture Veil", percent: 5, color: "bg-slate-100 text-slate-900 font-bold", note: "A minimal microfoam ring that smoothly seals the beverage core." },
+                    { name: "Steamed Dense Dairy Split", percent: 45, color: "bg-amber-100/40 text-amber-900 font-medium", note: "Silky, low-aeration steamed whole milk that neutralizes sharp coffee acidity." },
+                    { name: "Espresso Foundation Hub", percent: 50, color: "bg-stone-900 border-stone-800 text-stone-200", note: "A heavy double shot base providing an upfront, robust coffee kick." }
+                ]
+            },
+            {
+                id: "piccolo",
+                category: "milk",
+                title: "Piccolo Latte",
+                tag: "Micro Milk Craft",
+                stdVolume: 90,
+                minVol: 60, maxVol: 120, stepVol: 15,
+                ratio: "Restricted Base + Foam Cap",
+                tempRange: "60°C Standard Steam",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M25 36 L 75 36 L 75 48 L 25 48 Z" fill="#140802"/><path d="M25 16 L 75 16 L 75 36 L 25 36 Z" fill="#e3cbbb"/><path d="M25 8 L 75 8 L 75 16 L 25 16 Z" fill="#ffffff"/><text x="50" y="44" fill="#9ca3af" font-size="3.5" font-family="monospace" text-anchor="middle">RISTRETTO BASE</text><text x="50" y="28" fill="#7c2d12" font-size="4" font-family="monospace" text-anchor="middle">STEAMED TEXTURE</text></svg>`,
+                description: "A small-scale, high-intensity milk coffee. Built by floating silky latte-textured steamed milk over a concentrated single ristretto shot, creating a compact drink packed with rich, punchy flavor.",
+                brewingSequence: [
+                    "Extract a short, 20-25 mL single ristretto shot into a small 90 mL glass demitasse.",
+                    "Steam whole milk to 60°C inside a small pitcher, creating a fine, glossy microfoam texture.",
+                    "Gently pour the textured milk from a slight height to blend it evenly through the ristretto base.",
+                    "Finish with a thin, smooth velvet top layer, styled with a miniature latte art design if desired."
+                ],
+                layers: [
+                    { name: "Latte Art Velvet Ring", percent: 10, color: "bg-slate-50 text-slate-950 font-bold", note: "A thin, high-gloss surface layer used for delicate detail design work." },
+                    { name: "Silky Blended Milk Core", percent: 60, color: "bg-amber-100/30 text-amber-100", note: "Sweet, highly textured liquid milk mixed thoroughly through the coffee solution." },
+                    { name: "Ristretto Anchor Footing", percent: 30, color: "bg-black border-stone-900 text-stone-400", note: "A short, syrupy extraction base that prevents the milk from overpowering the drink." }
+                ]
+            },
+            {
+                id: "cappuccino",
+                category: "milk",
+                title: "Cappuccino",
+                tag: "Geometric Balance",
+                stdVolume: 240,
+                minVol: 150, maxVol: 360, stepVol: 30,
+                ratio: "1:1:1 Equilateral Mix",
+                tempRange: "60°C - 65°C Micro-Foam",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 38 L 80 38 L 80 48 Q 50 51, 20 48 Z" fill="#1f110a" stroke="#f59e0b" stroke-width="0.5"/><path d="M20 24 L 80 24 L 80 38 L 20 38 Z" fill="#deaf7d" opacity="0.4" stroke="#f59e0b" stroke-width="0.5"/><path d="M20 10 Q 50 7, 80 10 L 80 24 L 20 24 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.5"/><text x="50" y="45" fill="#9ca3af" font-size="4.5" font-family="monospace" text-anchor="middle">ESPRESSO</text><text x="50" y="33" fill="#fef3c7" font-size="4.5" font-family="monospace" text-anchor="middle">LIQUID DAIRY</text><text x="50" y="19" fill="#1e293b" font-size="4.5" font-family="monospace" font-weight="black" text-anchor="middle">MICROFOAM CAP</text></svg>`,
+                description: "The classic standard of artisan milk texturing. Divided structurally into exact geometric thirds of foundational espresso extraction, sweet liquid steamed milk, and a dense layer of aerated foam.",
+                brewingSequence: [
+                    "Pull a standard 60 mL double espresso extraction directly into a wide porcelain cappuccino cup.",
+                    "Steam fresh milk while introducing aerating air cycles early to double the foam volume.",
+                    "Roll and polish the milk pitcher until the microfoam develops a smooth, glossy, wet-paint shine.",
+                    "Pour down the center to lift the crema, creating a distinct white foam core bordered by a rich brown espresso ring."
+                ],
+                layers: [
+                    { name: "Insulating Microfoam (1/3)", percent: 33.3, color: "bg-slate-50 border-gray-300 text-gray-900 font-bold", note: "Plush, micro-perforated air matrix providing a velvet mouthfeel." },
+                    { name: "Steamed Liquid Milk (1/3)", percent: 33.3, color: "bg-amber-50/20 border-amber-100/30 text-amber-100/90", note: "Whole dairy components heated specifically to 65°C to break down natural sugars." },
+                    { name: "Foundational Espresso (1/3)", percent: 33.4, color: "bg-gradient-to-r from-stone-900 to-amber-950 border-stone-800 text-stone-300", note: "Crisp, robust extraction core working against heavy dairy dilution." }
+                ]
+            },
+            {
+                id: "macchiato",
+                category: "espresso",
+                title: "Espresso Macchiato",
+                tag: "Stained Shot",
+                stdVolume: 90,
+                minVol: 60, maxVol: 120, stepVol: 10,
+                ratio: "Double Shot + Foam Mark",
+                tempRange: "60°C - 65°C Insulation",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 28 L 80 28 L 80 48 Q 50 51, 20 48 Z" fill="#1f110a" stroke="#f59e0b" stroke-width="0.5"/><path d="M20 20 Q 50 22, 80 20 L 80 28 L 20 28 Z" fill="#b45309" stroke="#f59e0b" stroke-width="0.5"/><path d="M35 10 Q 50 14, 65 10 Q 55 22, 35 20 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/><text x="50" y="41" fill="#9ca3af" font-size="4.5" font-family="monospace" text-anchor="middle">ESPRESSO MATRIX</text><text x="50" y="16" fill="#0f172a" font-size="4" font-family="monospace" font-weight="black" text-anchor="middle">MILK BLOT</text></svg>`,
+                description: "A traditional recipe configuration built to anchor an intense espresso hit, highlighted with a small mark or 'stain' of microtextured whole dairy foam placed right on top of the crema.",
+                brewingSequence: [
+                    "Extract a double espresso shot directly into a small pre-heated glass glass or demitasse.",
+                    "Steam a small volume of milk, introducing plenty of air to build a thick, dense foam head.",
+                    "Spoon 1-2 dollops of the stiff white foam right into the center of the dark espresso crema layer.",
+                    "Serve untouched, highlighting the stark contrast between the bright white foam dot and the dark coffee rim."
+                ],
+                layers: [
+                    { name: "Aerated Milk Foam Blot", percent: 20, color: "bg-slate-50 border-slate-200 text-slate-900 font-bold", note: "Silky, sweet textured milk aeration added directly upon the active extraction surface." },
+                    { name: "Crema Boundary Ring", percent: 15, color: "bg-gradient-to-r from-amber-600 to-amber-700 border-amber-500 text-amber-100", note: "Preserves aromatic oils and seals in internal beverage temperatures." },
+                    { name: "Double Shot Base Engine", percent: 65, color: "bg-gradient-to-r from-stone-900 to-amber-950 border-stone-800 text-stone-300", note: "Strong, unaltered concentrated fluid foundation grounding the drink." }
+                ]
+            },
+            {
+                id: "conpanna",
+                category: "espresso",
+                title: "Espresso Con Panna",
+                tag: "Cream Canopy",
+                stdVolume: 90,
+                minVol: 60, maxVol: 120, stepVol: 15,
+                ratio: "Double Shot + Whipped Crown",
+                tempRange: "4°C / 93°C Delta Interface",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><path d="M20 30 L 80 30 L 80 48 Q 50 51, 20 48 Z" fill="#1f110a"/><path d="M20 12 Q 35 6, 50 12 Q 65 6, 80 12 L 80 30 L 20 30 Z" fill="#fffdfa" stroke="#e2e8f0"/><text x="50" y="42" fill="#9ca3af" font-size="4" font-family="monospace" text-anchor="middle">ESPRESSO BASE</text><text x="50" y="21" fill="#4b5563" font-size="4" font-family="monospace" text-anchor="middle">WHIPPED PANNACAP</text></svg>`,
+                description: "An old-school European classic. A rich double espresso shot is capped with a thick swirl of cold, velvety whipped heavy cream, offering a beautiful mix of temperatures and textures with every sip.",
+                brewingSequence: [
+                    "Pull a double espresso shot using premium roasts directly into a warm demitasse glass.",
+                    "Whip fresh heavy cream to soft, thick peaks, keeping it cold and un-sweetened.",
+                    "Spoon or pipe a rich swirl of the chilled whipped cream over the hot espresso base.",
+                    "Serve immediately so the guest can enjoy the hot coffee filtering through the cold cream layer."
+                ],
+                layers: [
+                    { name: "Chilled Whipped Cream Canopy", percent: 35, color: "bg-slate-50 border-stone-200 text-slate-800 font-bold", note: "Chilled heavy cream peaks that insulate and slowly melt into the hot liquid below." },
+                    { name: "Espresso Soluble Bed", percent: 65, color: "bg-gradient-to-r from-stone-900 to-amber-950 border-stone-800 text-stone-300", note: "A hot, heavy espresso body that forms a distinct boundary line with the cream canopy." }
+                ]
+            },
+            {
+                id: "irish",
+                category: "hybrid",
+                title: "Commercial Irish Coffee",
+                tag: "Stratified Blend",
+                stdVolume: 200,
+                minVol: 150, maxVol: 250, stepVol: 25,
+                ratio: "Coffee + Molasses + Cream Float",
+                tempRange: "5°C / 85°C Stratification",
+                imageSvg: `<svg viewBox="0 0 100 60" class="w-full h-32"><rect x="15" y="5" width="70" height="45" rx="5" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/><rect x="20" y="42" width="60" height="6" fill="#451a03"/><rect x="20" y="16" width="60" height="26" fill="#1f110a"/><path d="M20 8 L 80 8 L 80 16 L 20 16 Z" fill="#ffffff"/><text x="50" y="47" fill="#f59e0b" font-size="3" font-family="monospace" text-anchor="middle">MOLASSES BASE</text><text x="50" y="30" fill="#9ca3af" font-size="4" font-family="monospace" text-anchor="middle">LUNGO COFFEE</text></svg>`,
+                description: "A specialty café variant inspired by traditional recipes. Features an intense black coffee base sweetened with dark molasses brown sugar syrup, completely covered under a clean, floating layer of cold pouring cream.",
+                brewingSequence: [
+                    "Pour 15-20 mL of rich brown sugar or non-alcoholic molasses syrup into the bottom of a warm glass mug.",
+                    "Extract a long-pull lungo or hot water extended espresso directly over the syrup base and stir well.",
+                    "Lightly shake cold heavy cream inside a pitcher until it thickens slightly but stays pourable.",
+                    "Pour the chilled cream slowly over the back of a bar spoon to float it perfectly on top of the hot coffee."
+                ],
+                layers: [
+                    { name: "Floated Cold Pouring Cream", percent: 20, color: "bg-white text-gray-900 font-bold", note: "Unsweetened, lightly thickened liquid cream floated on the surface via spoon dispersion techniques." },
+                    { name: "Sweetened Espresso Solution", percent: 70, color: "bg-stone-900 text-stone-300", note: "Hot black coffee mixed with dark sugars to create a dense layer that supports the cream float." },
+                    { name: "Molasses Syrup Baseline", percent: 10, color: "bg-amber-950 text-amber-200 font-bold", note: "A dense, high-sugar flavor foundation settled at the bottom of the glass wrapper." }
+                ]
+            }
+        ];
+
+        let activeFilter = 'all';
+        let searchQuery = '';
+
+        // Master UI Catalog Rendering Module
+        function renderBlueprintGrid() {
+            const workspace = document.getElementById('blueprint-workspace');
+            const emptyPrompt = document.getElementById('emptySearchPrompt');
+            
+            // Filter catalog data based simultaneously on categories and text keywords
+            const filteredCollection = blueprintRegistry.filter(coffee => {
+                const matchesCategory = activeFilter === 'all' || coffee.category === activeFilter;
+                const matchesSearch = coffee.title.toLowerCase().includes(searchQuery) ||
+                                      coffee.tag.toLowerCase().includes(searchQuery) ||
+                                      coffee.description.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filteredCollection.length === 0) {
+                workspace.innerHTML = '';
+                emptyPrompt.classList.remove('hidden');
+                return;
+            }
+            emptyPrompt.classList.add('hidden');
+
+            workspace.innerHTML = filteredCollection.map(coffee => {
+                return `
+                <div id="card-${coffee.id}" class="glass-card rounded-2xl p-5 flex flex-col justify-between group">
+                    <div onclick="launchSpecificationModal('${coffee.id}')" class="cursor-pointer flex-1">
+                        <div class="flex justify-between items-start gap-2 mb-3">
+                            <div>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">${coffee.tag}</span>
+                                <h2 class="text-lg font-bold text-white tracking-tight mt-1 group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                                    ${coffee.title} 
+                                    <i class="bi bi-arrow-up-right-circle text-xs opacity-0 group-hover:opacity-100 transition-all text-amber-500"></i>
+                                </h2>
+                            </div>
+                            <span class="text-[9px] font-mono text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900">${coffee.ratio}</span>
+                        </div>
+
+                        <p class="text-gray-400 text-xs leading-relaxed mb-4 line-clamp-3">${coffee.description}</p>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="mb-4 bg-gray-950/50 p-3 rounded-xl border border-gray-900/60" onclick="event.stopPropagation()">
+                            <div class="flex justify-between items-center mb-1 text-[9px] text-gray-500 font-bold uppercase tracking-wider font-mono">
+                                <span>Calibration Volume</span>
+                                <span id="label-${coffee.id}" class="text-amber-400 font-mono font-bold">${coffee.stdVolume} mL</span>
+                            </div>
+                            <input type="range" min="${coffee.minVol}" max="${coffee.maxVol}" step="${coffee.stepVol}" value="${coffee.stdVolume}" 
+                                   oninput="recalculateProportions('${coffee.id}', this.value)" 
+                                   class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        </div>
+
+                        <div onclick="launchSpecificationModal('${coffee.id}')" class="w-full flex flex-col gap-0.5 rounded-lg overflow-hidden border border-gray-900 bg-stone-950 p-1 cursor-pointer">
+                            ${coffee.layers.map(layer => `
+                                <div id="block-${coffee.id}-${layer.name.replace(/\s+/g, '')}" 
+                                     style="height: ${Math.max(layer.percent * 1.1, 22)}px;" 
+                                     class="flex justify-between items-center px-2 text-[10px] font-black uppercase tracking-wide transition-all duration-150 rounded border ${layer.color}">
+                                    <span class="truncate">${layer.name}</span>
+                                    <span id="metric-${coffee.id}-${layer.name.replace(/\s+/g, '')}" class="text-[9px] font-mono font-normal opacity-70 lowercase">${Math.round(coffee.stdVolume * (layer.percent / 100))}ml</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Live Dynamic Proportional Scaling Recalculation Engine
+        function recalculateProportions(coffeeId, selectedValue) {
+            document.getElementById(`label-${coffeeId}`).textContent = `${selectedValue} mL`;
+            const profile = blueprintRegistry.find(c => c.id === coffeeId);
+            if (!profile) return;
+
+            profile.layers.forEach(layer => {
+                const elementBlockId = `block-${coffeeId}-${layer.name.replace(/\s+/g, '')}`;
+                const elementMetricId = `metric-${coffeeId}-${layer.name.replace(/\s+/g, '')}`;
+                
+                const targetMl = Math.round(selectedValue * (layer.percent / 100));
+                document.getElementById(elementMetricId).textContent = `${targetMl}ml`;
+                
+                const scaleFactor = selectedValue / profile.stdVolume;
+                const dynamicHeight = Math.max((layer.percent / 100) * 110 * scaleFactor, 22);
+                const blockEl = document.getElementById(elementBlockId);
+                if (blockEl) blockEl.style.height = `${dynamicHeight}px`;
+            });
+        }
+
+        // Real-Time Search Handler Methods
+        function handleSearchFilter() {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('searchClearBtn');
+            searchQuery = input.value.trim().toLowerCase();
+
+            if (searchQuery.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderBlueprintGrid();
+        }
+
+        function clearSearchField() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            searchQuery = '';
+            document.getElementById('searchClearBtn').classList.add('hidden');
+            renderBlueprintGrid();
+            input.focus();
+        }
+
+        function filterCategory(targetCategory) {
+            activeFilter = targetCategory;
+            ['all', 'espresso', 'milk', 'hybrid'].forEach(cat => {
+                const button = document.getElementById(`cat-${cat}`);
+                if (cat === targetCategory) {
+                    button.className = "px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-amber-500 bg-amber-500 text-black cursor-pointer transition-all";
+                } else {
+                    button.className = "px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border border-gray-800 text-gray-400 hover:text-white cursor-pointer transition-all";
+                }
+            });
+            renderBlueprintGrid();
+        }
+
+        // Central Popup Modal Lifecycle Open Handler
+        function launchSpecificationModal(coffeeId) {
+            const coffee = blueprintRegistry.find(c => c.id === coffeeId);
+            if (!coffee) return;
+
+            // Gather values directly from range inputs inside the grid component wrapper cards
+            const currentVolumeValue = document.querySelector(`#card-${coffeeId} input[type="range"]`).value;
+
+            // Insetting data into DOM structures
+            document.getElementById('specCode').textContent = `0x${coffee.id.toUpperCase()}`;
+            document.getElementById('specTag').textContent = coffee.tag;
+            document.getElementById('specTitle').textContent = coffee.title;
+            document.getElementById('specGraphicFrame').innerHTML = coffee.imageSvg;
+            document.getElementById('specDescription').textContent = coffee.description;
+            document.getElementById('specTemp').textContent = coffee.tempRange;
+            document.getElementById('specRatio').textContent = coffee.ratio;
+            document.getElementById('specGuideBtn').href = `https://www.youtube.com/results?search_query=barista+how+to+brew+perfect+${coffee.title.replace(/\s+/g, '+')}`;
+
+            // Inject brewing steps sequences
+            document.getElementById('specStepsContainer').innerHTML = coffee.brewingSequence.map((step, index) => `
+                <div class="flex gap-2.5 items-start bg-gray-950/60 p-2.5 rounded-lg border border-gray-900">
+                    <span class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-mono text-[9px] font-bold shrink-0 mt-0.5">${index + 1}</span>
+                    <p class="text-[11px] text-gray-300 leading-normal font-sans">${step}</p>
+                </div>
+            `).join('');
+
+            // Synchronize micro-layer breakdowns according to the active volume metrics
+            document.getElementById('specLayersContainer').innerHTML = coffee.layers.map(layer => {
+                const specificMlSplit = Math.round(currentVolumeValue * (layer.percent / 100));
+                return `
+                    <div class="p-3 bg-gray-950/80 rounded-xl border border-gray-900 flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-black text-white uppercase flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full inline-block ${layer.color.split(' ')[0]}"></span>
+                                ${layer.name}
+                            </span>
+                            <span class="text-[10px] font-mono text-amber-500 font-bold bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/10">${specificMlSplit} mL (${layer.percent}%)</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 leading-relaxed font-sans">${layer.note}</p>
+                    </div>
+                `;
+            }).join('');
+
+            // Display animators toggle switches
+            const modalElement = document.getElementById('specModal');
+            const boxElement = document.getElementById('modalBox');
+
+            modalElement.classList.remove('hidden');
+            modalElement.classList.add('flex');
+            
+            // Execute microfluid delay bounds to force canvas reflow animations smoothly
+            setTimeout(() => {
+                modalElement.classList.remove('opacity-0');
+                boxElement.classList.remove('scale-95', 'opacity-0');
+                boxElement.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close Pop-up Window Engine routines
+        function closeSpecModal() {
+            const modalElement = document.getElementById('specModal');
+            const boxElement = document.getElementById('modalBox');
+
+            modalElement.classList.add('opacity-0');
+            boxElement.classList.remove('scale-100', 'opacity-100');
+            boxElement.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modalElement.classList.remove('flex');
+                modalElement.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function dismissSpecModal(event) {
+            if (event.target === document.getElementById('specModal')) {
+                closeSpecModal();
+            }
+        }
+
+        // Window Event listeners hooks configuration
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSpecModal();
+        });
+
+        window.addEventListener('DOMContentLoaded', renderBlueprintGrid);
+    </script>
+</body>
+</html>

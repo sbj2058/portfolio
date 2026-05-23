@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barista & Beverage Recipe Organizer</title>
+    <!-- Tailwind CSS for Stunning UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Clean Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .recipe-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .recipe-card:hover { transform: translateY(-4px); }
+        .highlight { background-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 0 2px; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen selection:bg-amber-500 selection:text-slate-900">
+
+    <!-- Top Glow Effects -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-10 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 transition-all">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <span class="text-xs font-bold tracking-widest text-amber-500 uppercase">Interactive Log</span>
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">Barista Recipe Organizer</h1>
+            </div>
+            
+            <!-- Dynamic Search Feature -->
+            <div class="relative w-full md:w-96">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" id="searchInput" placeholder="Search by drink name, ingredient, tool..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-inner text-sm">
+                <button id="clearSearch" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Category Quick Tabs / Summary Stats -->
+        <div class="flex flex-wrap gap-2 mb-8 items-center text-sm text-slate-400 bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
+            <span class="font-medium px-2">Quick Navigation:</span>
+            <button onclick="scrollToSection('day7')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all font-medium">Day 7 & 8 (Alternatives)</button>
+            <button onclick="scrollToSection('day8')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all font-medium">Day 8 & 9 (Espresso & Brewing)</button>
+            <button onclick="scrollToSection('photoGallery')" class="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all font-medium border border-amber-500/20">📷 Original Notes Gallery</button>
+            <div class="ml-auto text-xs text-amber-500/80 font-mono hidden md:block" id="matchCounter">Showing all recipes</div>
+        </div>
+
+        <!-- Missing / Empty States Notification -->
+        <div id="noResults" class="hidden text-center py-16 bg-slate-800/20 rounded-2xl border border-dashed border-slate-800">
+            <svg class="mx-auto h-12 w-12 text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-base text-slate-400 font-medium">No ingredients or recipes match your exact keyword.</p>
+            <p class="text-xs text-slate-500 mt-1">Try checking for simple recipe terms like "Matcha", "Milk", or "Aeropress".</p>
+        </div>
+
+        <!-- ================= SECTION: DAY 7 & 8 ================= -->
+        <section id="day7" class="mb-12 recipe-section">
+            <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-2">
+                <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20">DAY 7 & 8</span>
+                <h2 class="text-xl font-bold text-white tracking-wide">Category 'A', 'B' & 'C' Beverages</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Card: Category A Hot Beverage Alternatives -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category A • Hot Alternatives</span>
+                            <span class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300 font-mono">May 20</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-3 searchable-title">Hot Beverage Alternatives</h3>
+                        <ul class="space-y-1.5 text-slate-300 text-sm mb-4">
+                            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Black tea</li>
+                            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Lemon tea</li>
+                            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Milk tea</li>
+                            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Hot lemon</li>
+                        </ul>
+                        
+                        <div class="bg-slate-900/60 rounded-xl p-3.5 border border-slate-700/40 text-sm mb-4">
+                            <div class="font-bold text-amber-400 text-xs tracking-wider uppercase mb-1.5">Hot Lemon with Honey (7 oz)</div>
+                            <div class="font-mono text-xs text-slate-300 space-y-1">
+                                <div>• 15 - 20 ml Honey</div>
+                                <div>• 10 ml Lemon juice</div>
+                                <div>• 80% - 90% Hot water</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Flavour Steamer -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category A • Hot Alternatives</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">Flavour Steamer (7 oz)</h3>
+                        <p class="text-xs text-amber-400 font-medium mb-4">Options: Hazelnut, Vanilla, Caramel, Chai</p>
+                        
+                        <!-- Visual Spec Presentation -->
+                        <div class="flex items-center gap-6 bg-slate-900/40 rounded-xl p-4 border border-slate-700/40">
+                            <!-- CSS Glass representation -->
+                            <div class="w-16 h-24 border-2 border-slate-500 rounded-b-2xl relative flex flex-col justify-end overflow-hidden flex-shrink-0 bg-slate-900 shadow-inner">
+                                <div class="h-[20%] bg-slate-200/20 border-b border-dashed border-slate-400 flex items-center justify-center text-[8px] text-slate-400 font-mono">20%</div>
+                                <div class="h-[60%] bg-amber-600/20 border-b border-dashed border-slate-500 flex items-center justify-center text-[8px] text-slate-400 font-mono">80%</div>
+                                <div class="h-[20%] bg-amber-800/40 flex items-center justify-center text-[8px] text-slate-400 font-mono">Flv</div>
+                            </div>
+                            <div class="text-xs text-slate-300 space-y-1.5 font-mono">
+                                <div><strong class="text-white">20%</strong> Milk Foam</div>
+                                <div><strong class="text-white">80%</strong> Steam Milk</div>
+                                <div><strong class="text-white">15 - 20 ml</strong> Flavour Syrup</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Dirty Chai Latte -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Chai-Tea Flavour Spec</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">Dirty Chai Latte</h3>
+                        <div class="bg-slate-900/60 border-l-2 border-amber-500 p-3 rounded-r-xl text-sm italic text-slate-300">
+                            "If chai syrup and espresso come together in latte then it is known as dirty chai latte."
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Hot Chocolate -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Hot Chocolate Spec (12 oz)</span>
+                            <span class="text-xs text-slate-500 font-mono">12 x 30 = 360 ml</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-3 searchable-title">Hot Chocolate</h3>
+                        
+                        <div class="text-sm text-slate-300 space-y-2 mb-4 font-mono">
+                            <div class="flex justify-between border-b border-slate-700 pb-1"><span>Decorate with:</span><span class="text-amber-400">Chocolate Sauce/Powder</span></div>
+                            <div class="flex justify-between border-b border-slate-700 pb-1"><span>Foam Layer:</span><span class="text-white">20% Milk Foam</span></div>
+                            <div class="flex justify-between border-b border-slate-700 pb-1"><span>Liquid Layer:</span><span class="text-white">Steam Milk (70% - 80%)</span></div>
+                            <div class="flex justify-between pb-1"><span>Base:</span><span class="text-white">30 - 40 gram Chocolate Powder</span></div>
+                        </div>
+                        <div class="bg-amber-500/10 text-amber-400 text-xs px-3 py-2 rounded-lg border border-amber-500/20 font-sans">
+                            <strong>Note:</strong> If hot chocolate is made in a <strong>7 oz cup</strong>, then it is called a <strong>Babycino</strong>.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Category B Ice Beverage Alternatives -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category B • Ice Alternatives</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-3 searchable-title">Ice Tea Methods</h3>
+                        
+                        <div class="space-y-4 text-sm text-slate-300">
+                            <div class="border-b border-slate-700/60 pb-3">
+                                <div class="font-bold text-white text-xs tracking-wider mb-1"># ICE TEA</div>
+                                <p class="text-xs text-slate-400">Steep <span class="text-amber-400">2 tea bags</span>, strain it, and pour it into an Americano cup. Add ice.</p>
+                            </div>
+                            <div>
+                                <div class="font-bold text-white text-xs tracking-wider mb-1"># ICE LEMON TEA</div>
+                                <p class="text-xs text-slate-400">Prepared using baseline ice tea extraction configured with lemon variants.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Fruits Flavour Ice Tea -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category B • Cold Methods</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">Fruits Flavour Ice Tea</h3>
+                        <p class="text-xs text-slate-400 mb-3 italic">Flavours: Apple, Peach, Lemon, etc. (+ Grain / दाना)</p>
+                        <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside font-mono">
+                            <li>Add 30 - 40 gram Flavour powder/syrup.</li>
+                            <li>Pour 5 - 6 oz cold water.</li>
+                            <li>Mix it well.</li>
+                            <li>Fill glass full of Ice.</li>
+                            <li>Pour the mixture into the glass.</li>
+                            <li>Serve with straw.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Card: Ice Lemonade -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category B • Built Drinks</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">Ice Lemonade (Sugar + Lemon powder + water)</h3>
+                        <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside font-mono">
+                            <li>30 - 40 gram Lemonade powder.</li>
+                            <li>5 - 6 oz cold water.</li>
+                            <li>Mix it well.</li>
+                            <li>Full glass of Ice.</li>
+                            <li>Pour the mixture into the glass.</li>
+                            <li>Serve with straw.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Card: Ice Matcha Japanese Drinks Latte -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category B • Speciality Specialty</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1 searchable-title">Ice Matcha Japanese Drinks 'Latte'</h3>
+                        <p class="text-[11px] text-slate-400 font-mono mb-3">Translation breakdown: Mat = Premium green | Cha = tea</p>
+                        
+                        <div class="text-xs text-slate-300 mb-3 bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/50">
+                            <span class="text-amber-400 font-bold block mb-1">Blender Method & Whip:</span>
+                            <ul class="space-y-1 font-mono">
+                                <li>• 40 - 50 gram matcha powder</li>
+                                <li>• 5 - 6 oz cold milk</li>
+                                <li>• Mix it well</li>
+                                <li>• Pour the mixture into the glass</li>
+                                <li>• Serve with straw <span class="text-slate-500 text-[10px]">(Could top with whipped cream)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Ice Chocolate -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category B • Iced Gourmet</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-3 searchable-title">Ice Chocolate</h3>
+                        <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside font-mono">
+                            <li>60 - 70 gram chocolate powder.</li>
+                            <li>5 - 6 oz cold milk.</li>
+                            <li>Mix it well.</li>
+                            <li>Decorate the glass with chocolate sauce.</li>
+                            <li>Full glass of ice.</li>
+                            <li>Pour the mixture into the glass.</li>
+                            <li>Stop/Top with ice cream.</li>
+                            <li>Decorate with chocolate sauce.</li>
+                            <li>Serve with straw & spoon.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Card: Blended Lemonade (Mint) -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category C • Blended Coffee Alternatives</span>
+                            <span class="text-[10px] text-amber-500/80 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-mono">Tasting garnu parney</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-3 searchable-title">1# Blended Lemonade (Mint)</h3>
+                        <ul class="text-xs text-slate-300 space-y-1 font-mono">
+                            <li>• 50 - 60 gram lemonade powder</li>
+                            <li>• 200 gram of ice</li>
+                            <li>• 5 - 6 oz cold water</li>
+                            <li>• Blend it well</li>
+                            <li>• Pour the mixture into the glass</li>
+                            <li>• Serve with straw</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card: Blended Ice Cream Shake -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category C • Shakes</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">2# Blended Ice Cream Shake (Vanilla Milkshake)</h3>
+                        <ul class="text-xs text-slate-300 space-y-1 font-mono">
+                            <li>• 150 - 180 gram of ice</li>
+                            <li>• 2 scoops of ice cream (Customer choice of flavour)</li>
+                            <li>• 5 - 6 oz cold milk</li>
+                            <li>• Add 10 - 15 ml sugar syrup (Or Flavour syrup*)</li>
+                            <li>• Blend it well</li>
+                            <li>• Pour the mixture into the glass</li>
+                            <li>• Top with same flavour scoop of ice cream</li>
+                            <li>• Decorate as per the Flavour*</li>
+                            <li>• Serve with straw & spoon</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card: Blended Oreo / Kitkat Shake -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category C • Shakes</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">3# Blended Oreo / Kit Kat Shake (Milkshake)</h3>
+                        <ul class="text-xs text-slate-300 space-y-1 font-mono">
+                            <li>• 150 - 180 gram of ice</li>
+                            <li>• 5 - 6 oz cold milk</li>
+                            <li>• 3 - 4 pairs of oreo cookies</li>
+                            <li>• 20 - 30 gram of chocolate powder <span class="text-amber-400">*Variation in own hand</span></li>
+                            <li>• Blend it well</li>
+                            <li>• Decorate the glass with chocolate sauce</li>
+                            <li>• Pour the mixture into the glass top</li>
+                            <li>• Top with ice cream and oreo cookies</li>
+                            <li>• Decorate with chocolate sauce</li>
+                            <li>• Serve with straw & spoon</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card: Seasonal Smoothies -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Category C • Blended Thick</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">4# Seasonal Smoothies</h3>
+                        <ul class="text-xs text-slate-300 space-y-1 font-mono">
+                            <li>• 100 gram of ice</li>
+                            <li>• 130 gram of curd</li>
+                            <li>• 60 gram whip cream / ice cream <span class="text-amber-400">*makes thicker</span></li>
+                            <li>• 80 gram fruit crush (Mango, Banana, Apple, Blueberry, Strawberry)</li>
+                            <li><span class="text-slate-400">*if real fruit - use sugar syrup (10 - 15 ml)</span></li>
+                            <li>• Blend it well</li>
+                            <li>• Pour the mixture into the glass</li>
+                            <li>• Serve with straw</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= SECTION: DAY 8 & 9 ================= -->
+        <section id="day8" class="mb-12 recipe-section">
+            <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-2">
+                <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-orange-500/10 text-orange-400 font-mono border border-orange-500/20">DAY 8 & 9</span>
+                <h2 class="text-xl font-bold text-white tracking-wide">SCA Speciality Coffee Association Systems & Brewing</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Card: Modern Method of Making Espresso -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">SCA Standings • Espresso Extraction</span>
+                            <span class="text-[10px] text-red-400 font-mono">*single portafilter not used</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-4 searchable-title">Modern Method of Making Espresso</h3>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-xs font-mono">
+                            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/40">
+                                <span class="text-amber-400 block font-bold mb-1">Ratio 1:2</span>
+                                <div class="text-slate-300 space-y-0.5">
+                                    <div>Coffee: 14g</div>
+                                    <div>Yield: 14 x 2 = 28 ml</div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/40">
+                                <span class="text-amber-400 block font-bold mb-1">Ratio 1:2.5</span>
+                                <div class="text-slate-300 space-y-0.5">
+                                    <div>Coffee: 18g</div>
+                                    <div>Yield: 18 x 2.5 = 45 ml</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Aeropress -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Brewing Methods • Manual</span>
+                            <span class="text-xs text-slate-500 font-mono">May 21</span>
+                        </div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <h3 class="text-lg font-bold text-white searchable-title">1# Aeropress</h3>
+                            <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">Standard / Inverted</span>
+                        </div>
+                        
+                        <div class="bg-slate-900/50 border border-slate-700/40 p-3 rounded-xl text-xs font-mono text-slate-300 space-y-1 mb-4">
+                            <div>• Grind: Medium Fine</div>
+                            <div>• Amount of Coffee: 25 gram</div>
+                            <div>• Ratio: 1:11</div>
+                            <div>• Total amount of water: 275 ml</div>
+                            <div>• Brewing time: 2 min</div>
+                        </div>
+
+                        <div class="text-xs space-y-2 text-slate-300">
+                            <div class="font-bold text-white text-xs uppercase tracking-wider">Steps:</div>
+                            <ol class="list-decimal list-inside space-y-1.5 font-mono text-slate-400">
+                                <li>Pre-heat the Aeropress & wash the filter paper. <span class="text-[10px] text-amber-500">(1=paper, 2=cloth, 3=metallic)</span></li>
+                                <li>Measure the coffee (25 gram).</li>
+                                <li>Pour 150ml of hot water, wet all the grounded coffee, start the timer and stir it up to 30 sec.</li>
+                                <li>After 30 sec, cover the Aeropress with filter lid & wait for 1:30 sec. (1 minute & 30 second)</li>
+                                <li>After 1:30 sec flip the Aeropress & slowly press it down for 30 second. Up to 2 minutes.</li>
+                                <li>Add 125ml of hot water into the aeropress coffee.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Chemex -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Brewing Methods • Pour Over</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">2# Chemex</h3>
+                        
+                        <div class="bg-slate-900/50 border border-slate-700/40 p-3 rounded-xl text-xs font-mono text-slate-300 space-y-1 mb-4">
+                            <div>• Grind: Fine</div>
+                            <div>• Amount of coffee: 22.5 gram</div>
+                            <div>• Ratio: 1:14</div>
+                            <div>• Total amount of water: 315 ml</div>
+                            <div>• Brewing time: 2:30 sec to 3:30 sec</div>
+                        </div>
+
+                        <div class="text-xs space-y-2 text-slate-300">
+                            <div class="font-bold text-white text-xs uppercase tracking-wider">Steps:</div>
+                            <ol class="list-decimal list-inside space-y-1.5 font-mono text-slate-400">
+                                <li>Wash the filter paper & pre-heat the chemex.</li>
+                                <li>Measure the coffee (22.5 gram).</li>
+                                <li>Pour little amount of hot water, wet all the grounded coffee, start the timer & let it bloom for 30 seconds.</li>
+                                <li>After 30 seconds pour hot water in a circular way.</li>
+                                <li>Total brewing time (2 minute 30 seconds to 3 minute 30 seconds) = total amount of water (315 ml).</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: French Press -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Brewing Methods • Immersion</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">3# French Press</h3>
+                        
+                        <div class="bg-slate-900/50 border border-slate-700/40 p-3 rounded-xl text-xs font-mono text-slate-300 space-y-1 mb-4">
+                            <div>• Grind: Course (Coarse)</div>
+                            <div>• Amount of coffee: 10 gram for 6oz (C.F.P) / Recipe step notes 20gram</div>
+                            <div>• Brewing time: 4 minutes</div>
+                            <div>• Serving size: 12 ounce</div>
+                        </div>
+
+                        <div class="text-xs space-y-2 text-slate-300">
+                            <div class="font-bold text-white text-xs uppercase tracking-wider">Steps:</div>
+                            <ol class="list-decimal list-inside space-y-1.5 font-mono text-slate-400">
+                                <li>Pre-heat the French press.</li>
+                                <li>Measure the coffee (20 gram).</li>
+                                <li>Pour little amount of hot water, wet all the grounded coffee, start the timer & stir it up to 1 minutes. <span class="text-amber-500">(Due to grind size, stir it ramro)</span></li>
+                                <li>After one minutes add hot water, below the rim of French press. And wait for 3 minutes.</li>
+                                <li>After 3 minutes cover the French press & wait for 4 minutes.</li>
+                                <li>After 4 minutes slowly press it down.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: V-60 -->
+                <div class="recipe-card bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between" data-searchable>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Brewing Methods • Cone Drip</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 searchable-title">4# V-60 (Shape & Angle Pour Over)</h3>
+                        
+                        <div class="bg-slate-900/50 border border-slate-700/40 p-3 rounded-xl text-xs font-mono text-slate-300 space-y-1 mb-4">
+                            <div>• Grind: Fine</div>
+                            <div>• Amount of coffee: 18 grams</div>
+                            <div>• Ratio: 1:15 / 1:16</div>
+                            <div>• Total Amount of water: 270 / 288 ml</div>
+                            <div>• Brewing time: 2:30 minutes - 3 minutes</div>
+                        </div>
+
+                        <div class="text-xs text-slate-400 font-mono italic">
+                            Steps: Same as Freshly brewed methods (Refer to standard pouring/wetting blooming sequences found in Chemex).
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= NEW SECTION: HANDWRITTEN NOTES PHOTO GALLERY ================= -->
+        <section id="photoGallery" class="mb-12">
+            <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-2">
+                <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-purple-500/10 text-purple-400 font-mono border border-purple-500/20">ARCHIVE</span>
+                <h2 class="text-xl font-bold text-white tracking-wide">Original Handwritten Notes</h2>
+            </div>
+            
+            <p class="text-xs text-slate-400 mb-4">Click any page thumbnail to open it in full screen and view the original notes context directly.</p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <!-- Thumbnail 1 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2709.jpg', 'Day 7 & 8: Hot Alternatives & Steamer')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2709.jpg" alt="IMG_2709.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 1 (IMG_2735)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 2 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2710.jpg', 'Chai Flavor & Hot Chocolate specs')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2710.jpg" alt="IMG_2710.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 2 (IMG_2736)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 3 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2711.jpg', 'Fruits Flavor Iced Tea & Lemonade')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2711.jpg" alt="IMG_2711.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 3 (IMG_2737)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 4 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2712.jpg', 'Ice Chocolate Method')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2712.jpg" alt="IMG_2712.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 4 (IMG_2738)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 5 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2713.jpg', 'Blended Lemonade & Milkshakes')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2713.jpg" alt="IMG_2713.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 5 (IMG_2739)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 6 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2714.jpg', 'Oreo Shakes & Smoothies')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2714.jpg" alt="IMG_2714.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 6 (IMG_2740)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 7 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2715.jpg', 'SCA Espresso Ratio & Aeropress')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2715.jpg" alt="IMG_2715.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 7 (IMG_2741)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 8 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2716.jpg', 'Chemex Brewing Parameters')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2716.jpg" alt="IMG_2716.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 8 (IMG_2742)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 9 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2717.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2717.jpg" alt="IMG_2717.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 9 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 10 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2718.jpg', 'Pour Over & Aeropress Techniques')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2718.jpg" alt="IMG_2718.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 10 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 11 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2719.jpg', 'Espresso & Moka Pot Methods')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2719.jpg" alt="IMG_2719.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 11 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 12-->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2720.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2720.jpg" alt="IMG_2720.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 12 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 13  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2721.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2721.jpg" alt="IMG_2721.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 13 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 14  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2722.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2722.jpg" alt="IMG_2722.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 14 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 15 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2723.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2723.jpg" alt="IMG_2723.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 15 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 16  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2724.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2724.jpg" alt="IMG_2724.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 16 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 17  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2725.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2725.jpg" alt="IMG_2725.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 17 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 18  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2726.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2726.jpg" alt="IMG_2726.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 18 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 19  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2727.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2727.jpg" alt="IMG_2727.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 19 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 20  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2728.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2728.jpg" alt="IMG_2728.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 20 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 21  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2729.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2729.jpg" alt="IMG_2729.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 21 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 22  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2730.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2730.jpg" alt="IMG_2730.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 22 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 23  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2731.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2731.jpg" alt="IMG_2731.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 23 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 24  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2732.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2732.jpg" alt="IMG_2732.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 24 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 25  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2733.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2733.jpg" alt="IMG_2733.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 25 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 26  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2734.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2734.jpg" alt="IMG_2734.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 26 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 27  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2735.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2735.jpg" alt="IMG_2735.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 27 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 28  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2736.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2736.jpg" alt="IMG_2736.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 28 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 29  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2737.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2737.jpg" alt="IMG_2737.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 29 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 30  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2738.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2738.jpg" alt="IMG_2738.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 30 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 31  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2739.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2739.jpg" alt="IMG_2739.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 31 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 32  -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2740.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2740.jpg" alt="IMG_2740.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 32 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 33 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2741.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2741.jpg" alt="IMG_2741.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 33 (IMG_2741)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 34 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2742.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2742.jpg" alt="IMG_2742.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 34 (IMG_2742)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 35 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2743.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2743.jpg" alt="IMG_2743.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 35 (IMG_2743)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 36 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2744.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2744.jpg" alt="IMG_2744.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 36 (IMG_2744)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 37 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2745.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2745.jpg" alt="IMG_2745.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 37 (IMG_2745 )</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 38 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2746.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2746.jpg" alt="IMG_2746.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 38 (IMG_2746)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 39 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2747.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2747.jpg" alt="IMG_2747.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 39 (IMG_2747)</span>
+                    </div>
+                </button>
+                <!-- Thumbnail 40 -->
+                <button onclick="openLightbox('assets/img/coffee_note/IMG_2748.jpg', 'French Press & V-60 Standards')" class="group relative bg-slate-800 border border-slate-700 rounded-xl overflow-hidden aspect-[3/4] transition-all hover:border-amber-500/50 focus:outline-none">
+                    <img src="assets/img/coffee_note/IMG_2748.jpg" alt="IMG_2748.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex items-end p-3">
+                        <span class="text-[11px] font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Page 40 (IMG_2748)</span>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LIGHTBOX MODAL FOR IMAGES -->
+    <div id="lightbox" class="hidden fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 focus:outline-none">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div class="max-w-4xl max-h-[80vh] flex items-center justify-center">
+            <img id="lightboxImg" src="" alt="Handwritten notes high-res view" class="max-w-full max-h-[80vh] object-contain rounded-lg border border-slate-800 shadow-2xl">
+        </div>
+        <p id="lightboxCaption" class="text-sm font-medium text-slate-300 mt-4 tracking-wide bg-slate-900 px-4 py-1.5 rounded-full border border-slate-800"></p>
+    </div>
+
+    <footer class="text-center py-8 text-xs text-slate-600 border-t border-slate-800/60 mt-12 bg-slate-950/40">
+        <p>Interactive Barista Log & Search Interface • Organised digitally from written archives.</p>
+    </footer>
+
+    <!-- Core Javascript Search & UI Logic Engine -->
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const recipeCards = document.querySelectorAll('[data-searchable]');
+        const noResults = document.getElementById('noResults');
+        const matchCounter = document.getElementById('matchCounter');
+        const sections = document.querySelectorAll('.recipe-section');
+
+        // Lightbox Functions
+        function openLightbox(imgSrc, caption) {
+            document.getElementById('lightboxImg').src = imgSrc;
+            document.getElementById('lightboxCaption').textContent = caption;
+            document.getElementById('lightbox').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Stop background scrolling
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Close lightbox if clicking on backdrop
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) closeLightbox();
+        });
+
+        // Main filtering functionality
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            
+            if (query === "") {
+                clearSearchBtn.classList.add('hidden');
+                resetSearch();
+                return;
+            }
+            
+            clearSearchBtn.classList.remove('hidden');
+            let totalMatches = 0;
+
+            recipeCards.forEach(card => {
+                const titleNode = card.querySelector('.searchable-title');
+                const originalText = card.getAttribute('data-original-html') || card.innerHTML;
+                
+                // Cache original markup to prevent degradation during continuous dynamic tracking
+                if (!card.getAttribute('data-original-html')) {
+                    card.setAttribute('data-original-html', originalText);
+                }
+
+                // Strip inner tags cleanly to run structural plain text checking
+                const plainText = card.textContent.toLowerCase();
+
+                if (plainText.includes(query)) {
+                    card.classList.remove('hidden');
+                    totalMatches++;
+                    
+                    // Complex Highlight execution: target the node element text nodes safely
+                    highlightTextInsideCard(card, query);
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Adjust layout dependencies based on results state
+            noResults.classList.toggle('hidden', totalMatches > 0);
+            matchCounter.textContent = `Found ${totalMatches} matching items`;
+
+            // Auto clean visibility flags on wrapper parent containers if children are absent
+            sections.forEach(section => {
+                const visibleInSection = section.querySelectorAll('[data-searchable]:not(.hidden)').length;
+                section.style.display = visibleInSection === 0 ? 'none' : 'block';
+            });
+        });
+
+        // Safe DOM highlight parser targeting text sequences natively without breaking node assignments
+        function highlightTextInsideCard(container, searchStr) {
+            // Restore context snapshot before executing query modification
+            container.innerHTML = container.getAttribute('data-original-html');
+            
+            const traverseAndHighlight = (node) => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.nodeValue;
+                    const index = text.toLowerCase().indexOf(searchStr);
+                    if (index >= 0) {
+                        const parent = node.parentNode;
+                        // Avoid styling inside properties/tags or breaking inputs
+                        if (parent && parent.tagName !== 'SCRIPT' && parent.tagName !== 'STYLE' && !parent.classList.contains('highlight')) {
+                            const rawWord = text.substring(index, index + searchStr.length);
+                            const before = document.createTextNode(text.substring(0, index));
+                            const after = document.createTextNode(text.substring(index + searchStr.length));
+                            const span = document.createElement('span');
+                            span.className = 'highlight';
+                            span.textContent = rawWord;
+                            
+                            parent.insertBefore(before, node);
+                            parent.insertBefore(span, node);
+                            parent.insertBefore(after, node);
+                            parent.removeChild(node);
+                        }
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE && node.childNodes) {
+                    // Collect initial child sequence array to prevent processing offset mutation crashes
+                    Array.from(node.childNodes).forEach(traverseAndHighlight);
+                }
+            };
+            traverseAndHighlight(container);
+        }
+
+        // Reset inputs clear tracking state
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = "";
+            clearSearchBtn.classList.add('hidden');
+            resetSearch();
+            searchInput.focus();
+        });
+
+        function resetSearch() {
+            recipeCards.forEach(card => {
+                card.classList.remove('hidden');
+                if (card.getAttribute('data-original-html')) {
+                    card.innerHTML = card.getAttribute('data-original-html');
+                }
+            });
+            sections.forEach(section => section.style.display = 'block');
+            noResults.classList.add('hidden');
+            matchCounter.textContent = "Showing all recipes";
+        }
+
+        // Direct scroll controller setup
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                const yOffset = -90; 
+                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }
+        }
+    </script>
+</body>
+</html>
