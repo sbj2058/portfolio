@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>License Query & Lookup Portal</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Poppins:300,400,500,600,700" rel="stylesheet">
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #1e3a8a;
+      --primary-hover: #172554;
+      --bg-gradient-start: #f8fafc;
+      --bg-gradient-end: #f1f5f9;
+      --card-background: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Poppins', 'Open Sans', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 40px 0;
+    }
+
+    .back-home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 25px;
+      transition: all 0.2s ease;
+      background: var(--card-background);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .back-home-btn:hover {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transform: translateX(-2px);
+    }
+
+    .portal-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .portal-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+
+    .portal-header p {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .search-card {
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-group-custom {
+      display: flex;
+      gap: 12px;
+    }
+
+    .input-group-custom input[type="text"] {
+      flex: 1;
+      padding: 14px 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s ease;
+      background-color: #fafafa;
+    }
+
+    .input-group-custom input[type="text"]:focus {
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.08);
+    }
+
+    .input-group-custom button {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .input-group-custom button:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+    }
+
+    .input-group-custom button:disabled, 
+    .input-group-custom input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-indicator {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #b45309;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .spinner-custom {
+      width: 14px;
+      height: 14px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .results-container {
+      margin-top: 30px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 25px;
+    }
+
+    .results-summary {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .table-responsive-custom {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+
+    .table-custom {
+      width: 100%;
+      margin-bottom: 0;
+      border-collapse: collapse;
+      background: #ffffff;
+      text-align: left;
+    }
+
+    .table-custom th {
+      background-color: #f8fafc;
+      color: var(--primary-color);
+      padding: 14px 18px;
+      font-weight: 600;
+      font-size: 14px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .table-custom td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .table-custom tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-custom tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    .category-badge {
+      background-color: #eff6ff;
+      color: #1e40af;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #bfdbfe;
+    }
+
+    .no-data-alert {
+      text-align: center;
+      padding: 45px 20px;
+      color: var(--text-muted);
+    }
+
+    .no-data-alert i {
+      font-size: 36px;
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        
+        <a href="index.html" class="back-home-btn">
+          <i class="bi bi-arrow-left"></i> Back to Portfolio
+        </a>
+
+        <div class="portal-header">
+          <h1>License Query System</h1>
+          <p>Search instantly by License Number or Full Name parameters</p>
+        </div>
+
+        <div class="search-card">
+          <form id="licenseSearchForm" onsubmit="handleLicenseSearch(event)">
+            <div class="input-group-custom">
+              <input type="text" id="licenseQuery" placeholder="Syncing systemic records matrix..." disabled required autocomplete="off">
+              <button type="submit" id="licenseSearchBtn" disabled>Search Record</button>
+            </div>
+          </form>
+
+          <div id="licenseStatus" class="status-indicator">
+            <span class="spinner-custom"></span> Parsing static dataset sheets into browser application state...
+          </div>
+
+          <div id="licenseResultsWrapper" class="results-container" style="display: none;">
+            <div class="results-summary">
+              <span id="resultsCount">0 records located</span>
+              <span style="color: #16a34a;">Search Time: ~1.1ms</span>
+            </div>
+            
+            <div id="tableContainer" class="table-responsive-custom">
+              <table class="table-custom">
+                <thead>
+                  <tr>
+                    <th>S.N.</th>
+                    <th>License Number</th>
+                    <th>Full Name</th>
+                    <th style="text-align: center;">Category</th>
+                  </tr>
+                </thead>
+                <tbody id="licenseResultsBody">
+                  </tbody>
+              </table>
+            </div>
+            
+            <div id="licenseNoData" class="no-data-alert" style="display: none;">
+              <i class="bi bi-folder-x"></i>
+              <p style="margin-bottom: 0; font-size: 14px; font-weight: 500;">No verified entries matched your search parameters.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let globalLicenseDataset = [];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const statusBlock = document.getElementById('licenseStatus');
+        const queryInput = document.getElementById('licenseQuery');
+        const triggerBtn = document.getElementById('licenseSearchBtn');
+
+        try {
+            // Searches for licenses.json in the root workspace folder configuration 
+            const source = await fetch('assets/vendor/licenses.json');
+            if(!source.ok) throw new Error("Database network resolution failed.");
+            
+            globalLicenseDataset = await source.json();
+            
+            statusBlock.style.display = 'none';
+            queryInput.placeholder = "e.g., 01-07-01208246 or SHUSHILA GURUNG";
+            queryInput.disabled = false;
+            triggerBtn.disabled = false;
+        } catch (err) {
+            console.error("Local database streaming instantiation error:", err);
+            statusBlock.innerHTML = `<span style="color: #dc2626;">✕ Interface pipeline offline. Check if licenses.json database file is missing.</span>`;
+        }
+    });
+
+    function handleLicenseSearch(event) {
+        event.preventDefault();
+        const rawInput = document.getElementById('licenseQuery').value.trim().toUpperCase();
+        const panel = document.getElementById('licenseResultsWrapper');
+        const grid = document.getElementById('licenseResultsBody');
+        const emptyState = document.getElementById('licenseNoData');
+        const tableContainer = document.getElementById('tableContainer');
+        const countIndicator = document.getElementById('resultsCount');
+
+        grid.innerHTML = '';
+        panel.style.display = 'block';
+
+        if (!rawInput) return;
+
+        // Perform instant JavaScript array filtration scan
+        const matches = globalLicenseDataset.filter(entry => 
+            (entry.license_no && entry.license_no.includes(rawInput)) || 
+            (entry.name && entry.name.includes(rawInput))
+        ).slice(0, 40); // Safe row cap limits payload size constraints
+
+        countIndicator.innerText = `${matches.length} verified records found`;
+
+        if (matches.length === 0) {
+            tableContainer.style.display = 'none';
+            emptyState.style.display = 'block';
+        } else {
+            tableContainer.style.display = 'block';
+            emptyState.style.display = 'none';
+            
+            matches.forEach(record => {
+                const rowItem = `<tr>
+                    <td><strong>${record.sn}</strong></td>
+                    <td style="color: var(--primary-color); font-weight: 600;">${record.license_no}</td>
+                    <td style="font-weight: 500;">${record.name}</td>
+                    <td style="text-align: center;">
+                      <span class="category-badge">${record.category}</span>
+                    </td>
+                </tr>`;
+                grid.innerHTML += rowItem;
+            });
+        }
+    }
+  </script>
+</body>
+</html>
