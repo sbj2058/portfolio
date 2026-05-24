@@ -59,19 +59,62 @@
 
     .portal-header {
       text-align: center;
-      margin-bottom: 35px;
+      margin-bottom: 30px;
     }
 
     .portal-header h1 {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: var(--primary-color);
       margin-bottom: 8px;
     }
 
-    .portal-header p {
-      font-size: 15px;
+    /* Notice Card Styling */
+    .notice-card {
+      background: #fff;
+      border-left: 5px solid #1e3a8a;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .notice-badge {
+      background-color: #f87171;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .notice-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
       color: var(--text-muted);
+      margin-bottom: 12px;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .notice-content p {
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .notice-footer-info {
+      background-color: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 15px;
+      font-size: 13.5px;
     }
 
     .search-card {
@@ -79,7 +122,7 @@
       border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 30px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
     }
 
     .input-group-custom {
@@ -170,7 +213,6 @@
       border-radius: 10px;
       overflow: hidden;
       border: 1px solid var(--border-color);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
     }
 
     .table-custom {
@@ -237,30 +279,53 @@
       <div class="col-lg-9">
         
         <a href="index.html" class="back-home-btn">
-          <i class="bi bi-arrow-left"></i> Back to Portfolio
+          <i class="bi bi-arrow-left"></i> मुख्य पोर्टफोलियोमा फर्कनुहोस्
         </a>
 
         <div class="portal-header">
-          <h1>License Query System</h1>
-          <p>Search instantly by License Number or Full Name parameters</p>
+          <h1>स्मार्ट लाईसेन्स खोज प्रणाली</h1>
+          <p>License Query & Lookup Portal</p>
+        </div>
+
+        <div class="notice-card">
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <span class="notice-badge"><i class="bi bi-megaphone-fill me-1"></i> आधिकारिक सूचना</span>
+            <div class="notice-meta">
+              <span><i class="bi bi-calendar3 me-1"></i> मिति: २०८३-०२-१०</span>
+            </div>
+          </div>
+          
+          <div class="notice-content">
+            <p>
+              <strong>२०२३ जनवरी ०१ देखि २०२६ अप्रिल १४ गतेसम्म</strong> जारी भएका तथा नवीकरण भएका लाईसेन्सहरू मध्ये यस कार्यालयमा प्राप्त <strong>१,५०,४९६ स्मार्ट लाईसेन्सको सूची</strong> अंग्रेजी अल्फाबेटिकल अर्डर (Alphabetical Order) मा सर्टिङ्ग गरि यहाँ उपलब्ध गराइएको छ।
+            </p>
+            <p>
+              तल रहेको सर्च बक्समा आफ्नो विवरण राखी तपाईंको लाईसेन्स आएको वा नआएको तत्कालै थाहा पाउन सक्नुहुनेछ। यदि सूचीमा फेला परेमा <strong>कार्यालय समयभित्र</strong> आवश्यक कागजात सहित लाईसेन्स लिन जानुहोला।
+            </p>
+            
+            <div class="notice-footer-info d-flex flex-column gap-2 text-secondary">
+              <div><i class="bi bi-file-earmark-check-fill text-primary me-2"></i><strong>आवश्यक कागजात:</strong> लाईसेन्स लिन आउँदा अनिवार्य रूपमा <strong>सक्कल रसिद</strong> साथमा लिएर जानुहोला।</div>
+              <div><i class="bi bi-info-circle-fill text-warning me-2"></i><strong>पुनश्चः</strong> अझै ४०,००० लाईसेन्सहरू छापिएर आउन बाँकी रहेको ब्यहोरा समेत जानकारी दिईन्छ।</div>
+            </div>
+          </div>
         </div>
 
         <div class="search-card">
           <form id="licenseSearchForm" onsubmit="handleLicenseSearch(event)">
             <div class="input-group-custom">
-              <input type="text" id="licenseQuery" placeholder="Syncing systemic records matrix..." disabled required autocomplete="off">
-              <button type="submit" id="licenseSearchBtn" disabled>Search Record</button>
+              <input type="text" id="licenseQuery" placeholder="लाईसेन्स डेटाबेस लोड हुँदैछ..." disabled required autocomplete="off">
+              <button type="submit" id="licenseSearchBtn" disabled>खोज्नुहोस् (Search)</button>
             </div>
           </form>
 
           <div id="licenseStatus" class="status-indicator">
-            <span class="spinner-custom"></span> Parsing static dataset sheets into browser application state...
+            <span class="spinner-custom"></span> १५०,४९६ लाईसेन्सको सूची ब्राउजर मेमोरीमा लोड हुँदैछ, कृपया एकछिन पर्खनुहोस्...
           </div>
 
           <div id="licenseResultsWrapper" class="results-container" style="display: none;">
             <div class="results-summary">
-              <span id="resultsCount">0 records located</span>
-              <span style="color: #16a34a;">Search Time: ~1.1ms</span>
+              <span id="resultsCount">० वटा रेकर्डहरू फेला परे</span>
+              <span style="color: #16a34a;"><i class="bi bi-lightning-charge-fill"></i> Search Time: ~1.1ms</span>
             </div>
             
             <div id="tableContainer" class="table-responsive-custom">
@@ -280,7 +345,7 @@
             
             <div id="licenseNoData" class="no-data-alert" style="display: none;">
               <i class="bi bi-folder-x"></i>
-              <p style="margin-bottom: 0; font-size: 14px; font-weight: 500;">No verified entries matched your search parameters.</p>
+              <p style="margin-bottom: 0; font-size: 14px; font-weight: 500;">तपाईंले खोज्नुभएको विवरण डेटाबेसमा फेला परेन। (४०,००0 आउन बाँकी सूचीमा हुन सक्नेछ।)</p>
             </div>
           </div>
 
@@ -299,19 +364,18 @@
         const triggerBtn = document.getElementById('licenseSearchBtn');
 
         try {
-            // Searches for licenses.json in the root workspace folder configuration 
-            const source = await fetch('assets/vendor/licenses.json');
+            const source = await fetch('assets/data/licenses.json');
             if(!source.ok) throw new Error("Database network resolution failed.");
             
             globalLicenseDataset = await source.json();
             
             statusBlock.style.display = 'none';
-            queryInput.placeholder = "e.g., 01-07-01208246 or SHUSHILA GURUNG";
+            queryInput.placeholder = "लाईसेन्स नम्बर वा अंग्रेजीमा पूरा नाम राख्नुहोस् (उदा: 01-07-01208246)";
             queryInput.disabled = false;
             triggerBtn.disabled = false;
         } catch (err) {
             console.error("Local database streaming instantiation error:", err);
-            statusBlock.innerHTML = `<span style="color: #dc2626;">✕ Interface pipeline offline. Check if licenses.json database file is missing.</span>`;
+            statusBlock.innerHTML = `<span style="color: #dc2626;">✕ प्रणाली अफलाइन छ। कृपया 'licenses.json' फाइल रुट फोल्डरमा उपलब्ध छ भनी यकिन गर्नुहोस्।</span>`;
         }
     });
 
@@ -329,13 +393,12 @@
 
         if (!rawInput) return;
 
-        // Perform instant JavaScript array filtration scan
         const matches = globalLicenseDataset.filter(entry => 
             (entry.license_no && entry.license_no.includes(rawInput)) || 
             (entry.name && entry.name.includes(rawInput))
-        ).slice(0, 40); // Safe row cap limits payload size constraints
+        ).slice(0, 40);
 
-        countIndicator.innerText = `${matches.length} verified records found`;
+        countIndicator.innerText = `${matches.length} वटा रेकर्डहरू फेला परे`;
 
         if (matches.length === 0) {
             tableContainer.style.display = 'none';
