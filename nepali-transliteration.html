@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepali Transliteration Studio - Bijay Kumar Karki</title>
+    <link rel="stylesheet" href="transliteration-studio/css/workspace.css">
+</head>
+<body>
+
+<div class="workspace-container">
+    <header class="app-header">
+        <div class="app-title">
+            <h1>Transliteration Studio</h1>
+            <p>Structured live conversational dictionary compiler</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="mapDrawerBtn">📋 Open Character Maps</button>
+            <button class="btn" id="themeModeBtn">🌙 Dark Mode</button>
+        </div>
+    </header>
+
+    <main class="file-grid">
+        <section class="file-card">
+            <div class="file-card-header">
+                <span class="file-label">Romanized Conversational Input</span>
+            </div>
+            <div class="editor-wrapper">
+                <textarea id="romanInput" placeholder="Type conversion sentences here... (e.g., namaste, maile paisa diye, kY, chaina)"></textarea>
+            </div>
+        </section>
+        
+        <section class="file-card">
+            <div class="file-card-header">
+                <span class="file-label">Compiled Devanagari Unicode String</span>
+                <button class="btn-copy" data-target="unicodeOutput">Copy Field</button>
+            </div>
+            <div class="editor-wrapper">
+                <textarea id="unicodeOutput" readonly placeholder="System builds Unicode records here..."></textarea>
+            </div>
+        </section>
+
+        <section class="file-card">
+            <div class="file-card-header">
+                <span class="file-label">Preeti Design Typographical Key Stream</span>
+                <button class="btn-copy" data-target="preetiOutput">Copy Field</button>
+            </div>
+            <div class="editor-wrapper">
+                <textarea id="preetiOutput" class="preeti-engine" readonly placeholder="System maps physical printing arrays here..."></textarea>
+            </div>
+        </section>
+    </main>
+
+    <div class="drawer-file" id="mappingDrawer">
+        <div class="drawer-tabs">
+            <button class="tab-item active" data-tab="vowels">Vowels</button>
+            <button class="tab-item" data-tab="consonants">Consonants</button>
+            <button class="tab-item" data-tab="barakhari">Barakhari Modifiers</button>
+            <button class="tab-item" data-tab="conjuncts">Signs & Conjuncts</button>
+        </div>
+
+        <div class="grid-container">
+            <div id="vowels" class="grid-view active">
+                <div class="fixed-matrix" id="vowelGrid"></div>
+            </div>
+            <div id="consonants" class="grid-view">
+                <div class="fixed-matrix" id="consonantGrid"></div>
+            </div>
+            <div id="barakhari" class="grid-view">
+                <div style="overflow-x: auto; padding-bottom: 4px;" id="barakhariMatrixContainer"></div>
+            </div>
+            <div id="conjuncts" class="grid-view">
+                <div class="fixed-matrix" id="conjunctGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="transliteration-studio/js/matrices.js"></script>
+<script src="transliteration-studio/js/engine.js"></script>
+<script src="transliteration-studio/js/studio-main.js"></script>
+</body>
+</html>
