@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hangman: Nexus Edition</title>
+    <link rel="stylesheet" href="advance-hangman/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="profile-gate" class="modal-overlay">
+        <div class="modal-content">
+            <h2>NEXUS PROFILE ENTRY</h2>
+            <p>Identify your operative handle to initialize the node:</p>
+            <input type="text" id="player-name-input" placeholder="Enter operative name..." autocomplete="off">
+            <button id="start-profile-btn" class="btn action-btn" style="margin-top: 15px;">Initialize Game Matrix</button>
+        </div>
+    </div>
+
+    <div class="game-container hidden" id="main-game-container">
+        <header>
+            <h1>HANGMAN <span class="accent">NEXUS</span></h1>
+            <div class="stats-bar">
+                <div class="stat-box">Ops: <span id="player-display" class="accent">---</span></div>
+                <div class="stat-box">Score: <span id="score-val">100</span></div>
+                <div class="stat-box">Mode: <span id="mode-val" class="accent">Tech</span></div>
+            </div>
+        </header>
+
+        <div class="management-grid">
+            <div id="mode-selection" class="screen dynamic-box">
+                <h3>Select Field Category</h3>
+                <div class="mode-buttons">
+                    <button class="btn mode-btn active" data-mode="tech">Tech</button>
+                    <button class="btn mode-btn" data-mode="places">Places</button>
+                    <button class="btn mode-btn" data-mode="animals">Animals</button>
+                </div>
+            </div>
+
+            <div id="blitz-panel" class="screen dynamic-box emergency-panel">
+                <h3>⚡ POINT HARVESTER BLITZ</h3>
+                <div id="blitz-idle-view">
+                    <p class="hint-text" style="margin-bottom: 8px;">Farming point juice. Typing correct words accelerates difficulty!</p>
+                    <button id="start-blitz-btn" class="btn active">Start Overdrive Attack</button>
+                </div>
+                <div id="blitz-active-view" class="hidden">
+                    <div class="blitz-stats">
+                        <span>Time: <b id="blitz-timer" class="accent">12s</b></span>
+                        <span>Target: <b id="blitz-target-word" style="color:var(--correct)">---</b></span>
+                    </div>
+                    <input type="text" id="blitz-input" placeholder="Type here..." autocomplete="off">
+                    <button id="abort-blitz-btn" class="btn wrong-guess" style="width:100%; margin-top:10px; padding:6px 0; font-size:0.8rem;">Abort & Exit Blitz</button>
+                </div>
+            </div>
+        </div>
+
+        <main class="gameplay-area" id="core-gameplay-area">
+            <div class="visual-panel dynamic-box">
+                <svg id="hangman-svg" viewBox="0 0 100 100">
+                    <line x1="10" y1="95" x2="90" y2="95" class="scaffold" />
+                    <line x1="30" y1="95" x2="30" y2="10" class="scaffold" />
+                    <line x1="30" y1="10" x2="70" y2="10" class="scaffold" />
+                    <line x1="70" y1="10" x2="70" y2="25" class="scaffold" />
+                    
+                    <circle cx="70" cy="32" r="7" class="body-part head" />
+                    <line x1="70" y1="39" x2="70" y2="60" class="body-part torso" />
+                    <line x1="70" y1="45" x2="55" y2="55" class="body-part left-arm" />
+                    <line x1="70" y1="45" x2="85" y2="55" class="body-part right-arm" />
+                    <line x1="70" y1="60" x2="55" y2="75" class="body-part left-leg" />
+                    <line x1="70" y1="60" x2="85" y2="75" class="body-part right-leg" />
+                </svg>
+            </div>
+
+            <div class="control-panel">
+                <div class="starter-clue-box dynamic-box">
+                    <span class="accent-label">TELEMETRY:</span> <span id="starter-clue">Awaiting initialization...</span>
+                </div>
+
+                <div id="word-display" class="word-display"></div>
+
+                <div class="hint-container dynamic-box">
+                    <button id="hint-btn" class="btn hint-btn">Unlock Hint (-25 pts)</button>
+                    <p id="hint-text" class="hint-text">Premium definitions offline.</p>
+                </div>
+
+                <div id="keyboard" class="keyboard"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="result-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="modal-title">VICTORY</h2>
+            <p id="modal-message">Matrix structure stabilized.</p>
+            <p>The word was: <span id="revealed-word" class="accent">XXXX</span></p>
+            <button id="restart-btn" class="btn action-btn">Deploy Next Objective</button>
+        </div>
+    </div>
+
+    <script src="advance-hangman/script.js"></script>
+</body>
+</html>
