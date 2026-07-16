@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Imposter - Party Game</title>
+    <link rel="stylesheet" href="imposter/style.css">
+</head>
+<body>
+
+    <div class="game-card">
+        <header>
+            <h1>🕵️‍♂️ IMPOSTER</h1>
+        </header>
+
+        <div id="screen-setup" class="screen active">
+            <div class="input-group">
+                <label for="player-count">Number of Players</label>
+                <select id="player-count">
+                    <option value="3">3 Players</option>
+                    <option value="4" selected>4 Players</option>
+                    <option value="5">5 Players</option>
+                    <option value="6">6 Players</option>
+                    <option value="7">7 Players</option>
+                    <option value="8">8 Players</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="category">Word Category</label>
+                <select id="category">
+                    <option value="food">🍕 Food & Drinks</option>
+                    <option value="vehicles">🚗 Vehicles & Transport</option>
+                    <option value="places">🏛️ Public Places</option>
+                    <option value="things">🎸 Everyday Items</option>
+                </select>
+            </div>
+
+            <button class="btn primary-btn" onclick="initiateGame()">Generate Secret Words</button>
+        </div>
+
+        <div id="screen-loading" class="screen">
+            <div class="loader"></div>
+            <p>Fetching dynamic clues from dictionary registry...</p>
+        </div>
+
+        <div id="screen-distribute" class="screen">
+            <div class="badge" id="player-badge">PLAYER 1</div>
+            <p class="instruction">Press and <strong>HOLD</strong> the card below to read your secret. Do not show others!</p>
+            
+            <div class="peek-pad" id="peek-pad">
+                <span id="pad-prompt">HOLD TO PEEK</span>
+                <div id="secret-content" class="secret-content"></div>
+            </div>
+
+            <p class="warning-text" id="view-reminder">⚠️ You must peek at your card before passing!</p>
+            <button id="next-player-btn" class="btn secondary-btn" onclick="handleNextPlayer()" disabled>Next Player ➡️</button>
+        </div>
+
+        <div id="screen-gameplay" class="screen">
+            <div class="success-banner">🎯 Words Distributed!</div>
+            
+            <div class="info-box">
+                <h3>🎲 Starting Player</h3>
+                <p id="starter-display" class="highlight-text">Player X</p>
+                <small>The game automatically chose you to start the description phase.</small>
+            </div>
+
+            <div class="rules-box">
+                <h4>How to Play:</h4>
+                <ul>
+                    <li>Go around in clockwise order.</li>
+                    <li>Describe your word using only one descriptive sentence.</li>
+                    <li>The imposter must blend in using their single-word property clue!</li>
+                </ul>
+            </div>
+
+            <button class="btn danger-btn" onclick="revealAndReset()">End Game & Reveal Imposter</button>
+        </div>
+    </div>
+<!-- CUSTOM MODAL DIALOGUE BOX -->
+        <div id="game-overlay" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">💥 GAME OVER</div>
+                <div class="modal-body">
+                    <div class="reveal-item">
+                        <span class="reveal-label">Secret Word</span>
+                        <span id="reveal-word" class="reveal-value-word">——</span>
+                    </div>
+                    <div class="reveal-item">
+                        <span class="reveal-label">The Hidden Imposter</span>
+                        <span id="reveal-imposter" class="reveal-value-imposter">——</span>
+                    </div>
+                </div>
+                <button class="btn primary-btn" onclick="closeModalAndReset()">Play Again 🔄</button>
+            </div>
+        </div>
+    <script src="imposter/script.js"></script>
+</body>
+</html>
