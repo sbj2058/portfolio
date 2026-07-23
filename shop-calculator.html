@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Retail & Price Calculator</title>
+  <link rel="stylesheet" href="shop-calculator/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container no-print">
+    <header class="app-header">
+      <div class="header-top">
+        <h1>Shop Profit System</h1>
+        <div class="controls">
+          <button id="theme-toggle" class="theme-btn">🌙 Dark Mode</button>
+          <div class="settings">
+            <label for="currencySelect" class="sr-only">Currency</label>
+            <select id="currencySelect">
+              <option value="USD">USD ($)</option>
+              <option value="NPR">NPR (Rs)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="EUR">EUR (€)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="tabs">
+        <button class="tab-btn active" data-target="tab-calc">1. Quick Calculator</button>
+        <button class="tab-btn" data-target="tab-cart">2. Shopping Cart (<span id="cart-count">0</span>)</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- TAB 1: Calculator -->
+      <div id="tab-calc" class="tab-content active">
+        <div class="calculator-grid">
+          <section class="card input-card">
+            <h2>Pricing Inputs</h2>
+            <form id="calc-form">
+              <div class="form-group">
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" placeholder="e.g., Wireless Mouse" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label for="buyingPrice">Buying Price (CP)</label>
+                  <input type="number" id="buyingPrice" value="100" min="0" step="0.01" required>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="quantity">Quantity</label>
+                  <input type="number" id="quantity" value="1" min="1" step="1" required>
+                </div>
+              </div>
+
+              <div class="form-group checkbox-group card-highlight">
+                <label class="switch">
+                  <input type="checkbox" id="includeVat" checked>
+                  <span class="slider"></span>
+                </label>
+                <span>Add 13% VAT on Buying Price</span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label for="marginValue">Profit Margin</label>
+                  <input type="number" id="marginValue" value="20" min="0" step="0.1">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="marginType">Type</label>
+                  <select id="marginType">
+                    <option value="percent">%</option>
+                    <option value="flat">Flat</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label for="discountValue">Discount</label>
+                  <input type="number" id="discountValue" value="5" min="0" step="0.1">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="discountType">Type</label>
+                  <select id="discountType">
+                    <option value="percent">%</option>
+                    <option value="flat">Flat</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" id="btn-add-cart" class="primary-btn">Add Item to Cart</button>
+            </form>
+          </section>
+
+          <section class="results-panel">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <span class="metric-label">Net Profit / Loss</span>
+                <span class="metric-value" id="res-total-profit">0.00</span>
+                <span class="status-badge" id="profit-badge">Profit</span>
+              </div>
+            </div>
+
+            <div class="card summary-card">
+              <h3>Unit Price Breakdown</h3>
+              <ul class="breakdown-list">
+                <li><span>Base Cost Price:</span> <strong id="res-unit-cp">0.00</strong></li>
+                <li><span>13% VAT Amount:</span> <strong id="res-unit-vat">0.00</strong></li>
+                <li><span>Added Margin:</span> <strong id="res-unit-margin">0.00</strong></li>
+                <li><span>Applied Discount:</span> <strong id="res-unit-discount">-0.00</strong></li>
+                <li class="total-row"><span>Final Selling Price:</span> <strong id="res-unit-final-sp">0.00</strong></li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- TAB 2: Shopping Cart -->
+      <div id="tab-cart" class="tab-content card">
+        <div class="cart-header">
+          <h2>Current Bill</h2>
+          <button id="btn-invoice" class="success-btn" disabled>Generate Invoice</button>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="cart-body">
+              <tr class="empty-row"><td colspan="5">Cart is empty. Add items from the calculator.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <strong id="cart-subtotal">0.00</strong>
+          </div>
+          <div class="summary-row grand-total">
+            <span>Grand Total:</span>
+            <strong id="cart-total">0.00</strong>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Printable Invoice Layout -->
+  <div id="print-invoice" class="print-only">
+    <div class="invoice-header">
+      <h2>TAX INVOICE</h2>
+      <p>Store Name / Company Ltd.</p>
+      <p>Date: <span id="invoice-date"></span></p>
+    </div>
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>Item Description</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="invoice-body"></tbody>
+    </table>
+    <div class="invoice-totals">
+      <p><strong>Grand Total: <span id="invoice-grand-total">0.00</span></strong></p>
+    </div>
+    <div class="invoice-footer">
+      <p>Thank you for your business!</p>
+      <p>Items inclusive of 13% VAT where applicable.</p>
+    </div>
+  </div>
+
+  <script src="shop-calculator/js/app.js"></script>
+</body>
+</html>
