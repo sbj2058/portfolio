@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kick Reward Scraper - Portfolio Web Portal</title>
+  <title>Reward Scraper Web Studio - Portfolio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -36,18 +36,27 @@
       <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
       <h2 class="font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
         <span class="w-6 h-6 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center">1</span>
-        Target Dashboard Setup
+        Target Dashboard Setup & Authentication
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
         <div class="md:col-span-8 space-y-1">
           <label class="block text-xs font-medium text-gray-400">Dashboard Target URL</label>
-          <input type="text" id="target-url" placeholder="https://example.com/kick/dashboard" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+          <input type="text" id="target-url" placeholder="https://dashboard.kick.com/popout/mrsbj/reward-request-queue" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
         </div>
 
         <div class="md:col-span-4 space-y-1">
           <label class="block text-xs font-medium text-gray-400">Max Pages / Category</label>
           <input type="number" id="max-pages" min="1" max="20" value="3" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <!-- AUTH TOKEN / COOKIE INPUT FIELD -->
+        <div class="md:col-span-12 space-y-1">
+          <label class="block text-xs font-medium text-gray-400">
+            Kick Auth Bearer Token or Cookie Header 
+            <span class="text-xs text-gray-500">(Required for protected dashboards: Copy from Browser DevTools -> Network Tab -> Headers)</span>
+          </label>
+          <input type="password" id="auth-token" placeholder="Bearer eyJhbGciOi... or kick_session=..." class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500">
         </div>
       </div>
 
@@ -74,7 +83,7 @@
         </div>
       </div>
 
-      <div id="categories-container" class="bg-gray-950 border border-gray-800 rounded-xl p-4 min-h-[100px] max-h-[160px] overflow-y-auto">
+      <div id="categories-container" class="bg-gray-950 border border-gray-800 rounded-xl p-4 min-h-[100px] max-h-[180px] overflow-y-auto">
         <p class="text-xs text-gray-500 italic text-center py-6">Enter dashboard URL and click "Fetch Sidebar Tabs" to load available sections.</p>
       </div>
     </section>
@@ -129,7 +138,6 @@
   </main>
 
   <script>
-    // Set your Render backend service URL here
     const BACKEND_URL = "https://scraper-backend-1ytg.onrender.com";
 
     let detectedCategories = [];
@@ -137,6 +145,8 @@
 
     async function fetchCategories() {
       const url = document.getElementById('target-url').value.trim();
+      const authToken = document.getElementById('auth-token').value.trim();
+
       if (!url) {
         alert("Please enter a valid Dashboard URL.");
         return;
@@ -152,7 +162,7 @@
         const res = await fetch(`${BACKEND_URL}/api/fetch-categories`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
+          body: JSON.stringify({ url, auth_token: authToken })
         });
         const result = await res.json();
 
@@ -171,56 +181,56 @@
     }
 
     function renderCategories() {
-  const container = document.getElementById('categories-container');
-  
-  if (detectedCategories.length === 0) {
-    container.innerHTML = `
-      <div class="space-y-3">
-        <p class="text-xs text-amber-400">
-          <i class="fa-solid fa-triangle-exclamation"></i> Auto-detection blocked by dashboard login/Cloudflare. Enter your category tab names manually below:
-        </p>
-        <div class="flex gap-2">
-          <input type="text" id="manual-cat-input" placeholder="e.g., Rewards, Requests, Custom Tab" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-          <button onclick="addManualCategory()" class="bg-emerald-500 text-gray-950 font-bold text-xs px-3 py-1.5 rounded-lg">Add Tab</button>
-        </div>
-        <div id="manual-tags" class="flex flex-wrap gap-2 pt-2"></div>
-      </div>
-    `;
-    return;
-  }
+      const container = document.getElementById('categories-container');
+      
+      if (detectedCategories.length === 0) {
+        container.innerHTML = `
+          <div class="space-y-3">
+            <p class="text-xs text-amber-400">
+              <i class="fa-solid fa-triangle-exclamation"></i> Auto-detection found no tabs or was blocked. Enter your category tab names manually below:
+            </p>
+            <div class="flex gap-2">
+              <input type="text" id="manual-cat-input" placeholder="e.g., Rewards, Requests, Queue" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <button onclick="addManualCategory()" class="bg-emerald-500 text-gray-950 font-bold text-xs px-3 py-1.5 rounded-lg">Add Tab</button>
+            </div>
+            <div id="manual-tags" class="flex flex-wrap gap-2 pt-2"></div>
+          </div>
+        `;
+        return;
+      }
 
-  let html = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">`;
-  detectedCategories.forEach((cat) => {
-    html += `
-      <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded-lg border border-gray-800 cursor-pointer">
-        <input type="checkbox" value="${cat}" class="cat-checkbox rounded bg-gray-950 border-gray-700 text-emerald-500 focus:ring-0" checked>
-        <span class="text-xs text-gray-200 truncate font-medium">${cat}</span>
-      </label>
-    `;
-  });
-  html += `</div>`;
-  container.innerHTML = html;
-}
+      let html = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">`;
+      detectedCategories.forEach((cat) => {
+        html += `
+          <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded-lg border border-gray-800 cursor-pointer">
+            <input type="checkbox" value="${cat}" class="cat-checkbox rounded bg-gray-950 border-gray-700 text-emerald-500 focus:ring-0" checked>
+            <span class="text-xs text-gray-200 truncate font-medium">${cat}</span>
+          </label>
+        `;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
 
     function addManualCategory() {
-  const input = document.getElementById('manual-cat-input');
-  const val = input.value.trim();
-  if (!val) return;
-  
-  if (!detectedCategories.includes(val)) {
-    detectedCategories.push(val);
-  }
-  input.value = '';
-  
-  const tagsContainer = document.getElementById('manual-tags');
-  tagsContainer.innerHTML = detectedCategories.map(cat => `
-    <label class="flex items-center space-x-2 bg-gray-900 px-2.5 py-1.5 rounded-lg border border-emerald-500/30">
-      <input type="checkbox" value="${cat}" class="cat-checkbox rounded text-emerald-500 focus:ring-0" checked>
-      <span class="text-xs text-emerald-300 font-medium">${cat}</span>
-    </label>
-  `).join('');
-} 
-    
+      const input = document.getElementById('manual-cat-input');
+      const val = input.value.trim();
+      if (!val) return;
+      
+      if (!detectedCategories.includes(val)) {
+        detectedCategories.push(val);
+      }
+      input.value = '';
+      
+      const tagsContainer = document.getElementById('manual-tags');
+      tagsContainer.innerHTML = detectedCategories.map(cat => `
+        <label class="flex items-center space-x-2 bg-gray-900 px-2.5 py-1.5 rounded-lg border border-emerald-500/30">
+          <input type="checkbox" value="${cat}" class="cat-checkbox rounded text-emerald-500 focus:ring-0" checked>
+          <span class="text-xs text-emerald-300 font-medium">${cat}</span>
+        </label>
+      `).join('');
+    }
+
     function toggleAllTabs(state) {
       document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = state);
     }
@@ -228,6 +238,7 @@
     async function startScraper() {
       const url = document.getElementById('target-url').value.trim();
       const maxPages = document.getElementById('max-pages').value;
+      const authToken = document.getElementById('auth-token').value.trim();
       const selected = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
 
       if (!url) {
@@ -247,7 +258,7 @@
         const res = await fetch(`${BACKEND_URL}/api/scrape`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, categories: selected, max_pages: maxPages })
+          body: JSON.stringify({ url, categories: selected, max_pages: maxPages, auth_token: authToken })
         });
         const result = await res.json();
 
