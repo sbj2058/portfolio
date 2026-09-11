@@ -171,25 +171,56 @@
     }
 
     function renderCategories() {
-      const container = document.getElementById('categories-container');
-      if (detectedCategories.length === 0) {
-        container.innerHTML = `<p class="text-xs text-red-400 text-center py-6">No tabs detected on target dashboard page.</p>`;
-        return;
-      }
+  const container = document.getElementById('categories-container');
+  
+  if (detectedCategories.length === 0) {
+    container.innerHTML = `
+      <div class="space-y-3">
+        <p class="text-xs text-amber-400">
+          <i class="fa-solid fa-triangle-exclamation"></i> Auto-detection blocked by dashboard login/Cloudflare. Enter your category tab names manually below:
+        </p>
+        <div class="flex gap-2">
+          <input type="text" id="manual-cat-input" placeholder="e.g., Rewards, Requests, Custom Tab" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <button onclick="addManualCategory()" class="bg-emerald-500 text-gray-950 font-bold text-xs px-3 py-1.5 rounded-lg">Add Tab</button>
+        </div>
+        <div id="manual-tags" class="flex flex-wrap gap-2 pt-2"></div>
+      </div>
+    `;
+    return;
+  }
 
-      let html = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">`;
-      detectedCategories.forEach((cat) => {
-        html += `
-          <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded-lg border border-gray-800 cursor-pointer">
-            <input type="checkbox" value="${cat}" class="cat-checkbox rounded bg-gray-950 border-gray-700 text-emerald-500 focus:ring-0" checked>
-            <span class="text-xs text-gray-200 truncate font-medium">${cat}</span>
-          </label>
-        `;
-      });
-      html += `</div>`;
-      container.innerHTML = html;
-    }
+  let html = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">`;
+  detectedCategories.forEach((cat) => {
+    html += `
+      <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded-lg border border-gray-800 cursor-pointer">
+        <input type="checkbox" value="${cat}" class="cat-checkbox rounded bg-gray-950 border-gray-700 text-emerald-500 focus:ring-0" checked>
+        <span class="text-xs text-gray-200 truncate font-medium">${cat}</span>
+      </label>
+    `;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
 
+    function addManualCategory() {
+  const input = document.getElementById('manual-cat-input');
+  const val = input.value.trim();
+  if (!val) return;
+  
+  if (!detectedCategories.includes(val)) {
+    detectedCategories.push(val);
+  }
+  input.value = '';
+  
+  const tagsContainer = document.getElementById('manual-tags');
+  tagsContainer.innerHTML = detectedCategories.map(cat => `
+    <label class="flex items-center space-x-2 bg-gray-900 px-2.5 py-1.5 rounded-lg border border-emerald-500/30">
+      <input type="checkbox" value="${cat}" class="cat-checkbox rounded text-emerald-500 focus:ring-0" checked>
+      <span class="text-xs text-emerald-300 font-medium">${cat}</span>
+    </label>
+  `).join('');
+} 
+    
     function toggleAllTabs(state) {
       document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = state);
     }
