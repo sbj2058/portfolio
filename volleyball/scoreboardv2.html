@@ -27,6 +27,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Mukta:wght@600;700;800&display=swap" rel="stylesheet">
     <!-- Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- MQTT Library for Cross-Device Real-Time Sync on GitHub Pages -->
+    <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', 'Mukta', sans-serif;
@@ -115,14 +117,16 @@
                 <h1 class="text-xl md:text-2xl font-black tracking-wider text-white drop-shadow-md">
                     बडा दशैँ मेला भलिबल <span class="text-festivalGold">२०८३</span>
                 </h1>
-                <p class="text-xs text-amber-200 font-semibold tracking-wide">OBS Studio Plugin & Live Controller</p>
+                <p class="text-xs text-amber-200 font-semibold tracking-wide flex items-center space-x-2">
+                    <span>OBS Studio Plugin & Live Controller</span>
+                    <span id="sync-status" class="inline-flex items-center space-x-1 bg-emerald-950 text-emerald-400 border border-emerald-700 px-2 py-0.5 rounded-full text-[10px]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Multi-Device Sync Connected</span>
+                    </span>
+                </p>
             </div>
         </div>
         <div class="flex items-center space-x-3 mt-2 sm:mt-0">
-            <button onclick="toggleMobileDock()" id="mobile-dock-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-lg text-sm shadow-lg transition flex items-center space-x-1">
-                <i class="fa-solid fa-mobile-screen-button"></i>
-                <span>Mobile Dock</span>
-            </button>
             <button onclick="toggleOBSMode()" id="obs-mode-btn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm shadow-lg transition flex items-center space-x-2 z-20">
                 <i class="fa-solid fa-tv"></i>
                 <span>OBS Clean Overlay Mode</span>
@@ -157,7 +161,7 @@
                 
                 <!-- Background Watermark -->
                 <div class="absolute inset-0 opacity-10 pointer-events-none flex justify-center items-center">
-                    <i class="fa-solid fa-mountain-sun text-9xl text-amber-300"></i>
+                    <img src="logo.png" alt="Dashain Festival Logo" class="w-32 md:w-40" onerror="this.style.display='none'">
                 </div>
 
                 <!-- Tournament Header Banner -->
@@ -184,7 +188,6 @@
                             <div class="overflow-hidden">
                                 <div class="text-xs text-blue-300 font-bold uppercase tracking-wider flex items-center space-x-1">
                                     <span>TEAM A</span>
-                                    <span class="text-[10px] text-blue-200 opacity-85">(Click to +1)</span>
                                 </div>
                                 <div id="display-team-a" contenteditable="true" onblur="updateTeamNameInline('a', this.innerText)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" class="text-lg md:text-xl font-extrabold text-white truncate max-w-[140px] md:max-w-[210px] outline-none hover:bg-blue-800/40 focus:bg-blue-950/80 focus:border-b-2 focus:border-amber-400 rounded px-1 cursor-text" title="Click to edit Team A name directly">मल्लाज युवा क्लब</div>
                                 <div id="display-sets-a" class="flex space-x-1 mt-1">
@@ -216,7 +219,6 @@
                         <div class="flex items-center space-x-3 space-x-reverse overflow-hidden text-right md:text-left">
                             <div class="overflow-hidden">
                                 <div class="text-xs text-red-300 font-bold uppercase tracking-wider flex items-center justify-end md:justify-start space-x-1">
-                                    <span class="text-[10px] text-red-200 opacity-85">(Click to +1)</span>
                                     <span>TEAM B</span>
                                 </div>
                                 <div id="display-team-b" contenteditable="true" onblur="updateTeamNameInline('b', this.innerText)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" class="text-lg md:text-xl font-extrabold text-white truncate max-w-[140px] md:max-w-[210px] outline-none hover:bg-red-800/40 focus:bg-red-950/80 focus:border-b-2 focus:border-amber-400 rounded px-1 cursor-text" title="Click to edit Team B name directly">जलजला स्पोर्ट्स</div>
@@ -386,10 +388,10 @@
     </main>
 
     <footer id="app-footer" class="text-center py-4 text-xs text-slate-500 border-t border-slate-900">
-        बडा दशैँ मेला मूल आयोजन समिति-२०८३ • जलजला गाउँपालिका मल्लाज माझफाँट, पर्वत | OBS Volleyball Plugin v2.5
+        बडा दशैँ मेला मूल आयोजन समिति-२०८३ • जलजला गाउँपालिका मल्लाज माझफाँट, पर्वत | OBS Volleyball Plugin v2.6
     </footer>
 
-    <!-- CELEBRATION MODAL / OVERLAY (Appears in center of stream over anything) -->
+    <!-- CELEBRATION MODAL / OVERLAY -->
     <div id="celebration-modal" class="fixed inset-0 z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
         <div class="bg-gradient-to-br from-red-950 via-slate-900 to-black border-4 border-amber-400 p-8 rounded-3xl max-w-xl w-full text-center shadow-2xl relative winner-glow">
             
@@ -401,44 +403,22 @@
                 <i id="modal-icon" class="fa-solid fa-trophy"></i>
             </div>
 
-    <!-- MOBILE FLOATING TOUCH CONTROLLER DOCK FOR STREAMLABS MOBILE -->
-    <div id="mobile-touch-dock" class="fixed bottom-3 left-1/2 transform -translate-x-1/2 z-[999999] bg-slate-950/95 border-2 border-amber-400 p-3 rounded-2xl shadow-2xl w-[95%] max-w-md hidden transition-all">
-        <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-amber-400 flex items-center gap-1">
-                <i class="fa-solid fa-mobile-retro"></i> Streamlabs Mobile Touch Controls
-            </span>
-            <button onclick="toggleMobileDock()" class="text-slate-400 hover:text-white px-2">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-center">
-            <div class="bg-blue-950/80 border border-blue-500/50 p-2 rounded-xl">
-                <div id="mobile-name-a" class="text-xs font-bold text-blue-300 truncate">Team A</div>
-                <div class="flex gap-1 mt-1">
-                    <button onclick="modifyScore('a', 1)" class="flex-1 bg-blue-600 active:bg-blue-700 text-white font-black py-2 rounded-lg text-lg touch-manipulation">+1</button>
-                    <button onclick="modifyScore('a', -1)" class="w-10 bg-blue-900 active:bg-blue-950 text-slate-300 font-bold py-2 rounded-lg text-sm touch-manipulation">-1</button>
-                </div>
+            <h3 id="modal-subtitle" class="text-amber-400 font-bold uppercase tracking-widest text-sm mb-1">SET WINNER ANNOUNCEMENT</h3>
+            <h2 id="modal-title" class="text-3xl md:text-5xl font-black text-white mb-4 drop-shadow-lg">TEAM A WINS SET 1!</h2>
+            
+            <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 my-4">
+                <p id="modal-desc" class="text-slate-300 text-sm md:text-base">Amazing performance in this set! Preparing for next set action...</p>
             </div>
-            <div class="bg-red-950/80 border border-red-500/50 p-2 rounded-xl">
-                <div id="mobile-name-b" class="text-xs font-bold text-red-300 truncate">Team B</div>
-                <div class="flex gap-1 mt-1">
-                    <button onclick="modifyScore('b', 1)" class="flex-1 bg-red-600 active:bg-red-700 text-white font-black py-2 rounded-lg text-lg touch-manipulation">+1</button>
-                    <button onclick="modifyScore('b', -1)" class="w-10 bg-red-900 active:bg-red-950 text-slate-300 font-bold py-2 rounded-lg text-sm touch-manipulation">-1</button>
-                </div>
+
+            <div class="mt-6 flex justify-center space-x-4">
+                <button onclick="closeModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-sm shadow-lg transition">
+                    Dismiss Celebration / Resume Stream
+                </button>
             </div>
-        </div>
-        <div class="flex gap-2 mt-2">
-            <button onclick="setService(state.serving === 'a' ? 'b' : 'a')" class="flex-1 bg-amber-500 active:bg-amber-600 text-slate-950 font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1">
-                <i class="fa-solid fa-volleyball"></i> Switch Serve
-            </button>
-            <button onclick="triggerSetWinnerModal()" class="flex-1 bg-rose-700 active:bg-rose-800 text-white font-bold py-1.5 rounded-lg text-xs">
-                🏆 Set Win
-            </button>
         </div>
     </div>
 
     <script>
-        // State Management with localStorage & BroadcastChannel sync for OBS multi-window control
         let state = {
             tournament: "बडा दशैँ मेला भलिबल प्रतियोगिता-२०८३",
             location: "जलजला गाउँपालिका मल्लाज माझफाँट, पर्वत",
@@ -453,32 +433,83 @@
             serving: 'a'
         };
 
-        const STORAGE_KEY = 'dashain_volleyball_obs_state_v3';
+        const STORAGE_KEY = 'dashain_volleyball_obs_state_v4';
+        const MQTT_TOPIC = 'dashain_volleyball_championship_2083_sync_channel';
         
-        // BroadcastChannel provides instant cross-tab sync even for local file:// URLs
         let broadcastChannel = null;
+        let mqttClient = null;
+        let isRemoteUpdate = false;
+
+        // Setup local tab broadcast
         try {
             broadcastChannel = new BroadcastChannel('dashain_volleyball_sync');
             broadcastChannel.onmessage = (event) => {
                 if (event.data && typeof event.data === 'object') {
+                    isRemoteUpdate = true;
                     state = Object.assign(state, event.data);
                     renderUI();
+                    isRemoteUpdate = false;
                 }
             };
         } catch (e) {
             console.warn('BroadcastChannel not supported:', e);
         }
 
+        // Setup cross-device real-time sync for GitHub Pages via public MQTT WebSockets broker
+        function initMQTT() {
+            try {
+                mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
+                
+                mqttClient.on('connect', () => {
+                    console.log('Connected to cross-device sync broker');
+                    mqttClient.subscribe(MQTT_TOPIC, (err) => {
+                        if (!err) {
+                            const statusEl = document.getElementById('sync-status');
+                            if (statusEl) {
+                                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Multi-Device Sync Connected</span>`;
+                            }
+                        }
+                    });
+                });
+
+                mqttClient.on('message', (topic, payload) => {
+                    if (topic === MQTT_TOPIC) {
+                        try {
+                            const remoteState = JSON.parse(payload.toString());
+                            isRemoteUpdate = true;
+                            state = Object.assign(state, remoteState);
+                            renderUI();
+                            isRemoteUpdate = false;
+                        } catch (e) {
+                            console.error('Error parsing remote state:', e);
+                        }
+                    }
+                });
+
+                mqttClient.on('error', (err) => {
+                    console.warn('MQTT error:', err);
+                });
+            } catch (e) {
+                console.warn('MQTT initialization failed:', e);
+            }
+        }
+
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch (e) {
-                console.warn('LocalStorage unavailable:', e);
-            }
-            if (broadcastChannel) {
+            } catch (e) {}
+
+            if (broadcastChannel && !isRemoteUpdate) {
                 try {
                     broadcastChannel.postMessage(state);
                 } catch(e) {}
+            }
+
+            // Publish state across devices via MQTT when change happens locally
+            if (mqttClient && mqttClient.connected && !isRemoteUpdate) {
+                try {
+                    mqttClient.publish(MQTT_TOPIC, JSON.stringify(state));
+                } catch (e) {}
             }
         }
 
@@ -489,14 +520,10 @@
                     const parsed = JSON.parse(saved);
                     state = Object.assign(state, parsed);
                 }
-            } catch (e) {
-                console.warn('Could not load saved state:', e);
-            }
+            } catch (e) {}
         }
 
-        // Main function to update UI from current state without infinite loop
         function renderUI() {
-            // Update OBS Scoreboard elements
             const dispTournament = document.getElementById('display-tournament');
             const dispLocation = document.getElementById('display-location');
             const dispTeamA = document.getElementById('display-team-a');
@@ -513,7 +540,6 @@
             if (dispScoreB) dispScoreB.innerText = state.scoreB;
             if (dispSetNum) dispSetNum.innerText = state.setNum;
 
-            // Synchronize control panel input fields if present and user is not currently typing in them
             const inTournament = document.getElementById('input-tournament');
             const inLocation = document.getElementById('input-location');
             const inTeamA = document.getElementById('input-team-a');
@@ -547,12 +573,6 @@
             const ctrlNameB = document.getElementById('ctrl-name-b');
             if (ctrlNameB) ctrlNameB.innerText = state.teamB;
 
-            const mobNameA = document.getElementById('mobile-name-a');
-            if (mobNameA) mobNameA.innerText = state.teamA;
-
-            const mobNameB = document.getElementById('mobile-name-b');
-            if (mobNameB) mobNameB.innerText = state.teamB;
-
             const labelSetsA = document.getElementById('label-sets-a');
             if (labelSetsA) labelSetsA.innerText = state.teamA + " Sets";
 
@@ -580,7 +600,6 @@
             }
         }
 
-        // Triggered when user edits values in control panel inputs
         function updateDisplay() {
             const inTournament = document.getElementById('input-tournament');
             const inLocation = document.getElementById('input-location');
@@ -617,7 +636,6 @@
             updateDisplay();
         }
 
-        // Directly edit team names inline from the scoreboard overlay
         function updateTeamNameInline(team, name) {
             const cleanName = name.trim() || (team === 'a' ? 'Team A' : 'Team B');
             if (team === 'a') {
@@ -629,7 +647,6 @@
             showToast(`Team ${team.toUpperCase()} renamed to "${cleanName}"`);
         }
 
-        // Score Actions with automatic floating volleyball serve transfer
         function modifyScore(team, val) {
             if (team === 'a') {
                 state.scoreA = Math.max(0, state.scoreA + val);
@@ -639,6 +656,7 @@
                 if (val > 0) state.serving = 'b';
             }
             updateDisplay();
+            saveState();
         }
 
         function modifySetsWon(team, val) {
@@ -649,22 +667,26 @@
                 state.setsB = Math.max(0, Math.min(maxWins, state.setsB + val));
             }
             updateDisplay();
+            saveState();
         }
 
         function changeSet(val) {
             state.setNum = Math.max(1, state.setNum + val);
             updateDisplay();
+            saveState();
         }
 
         function setService(team) {
             state.serving = team;
             updateDisplay();
+            saveState();
         }
 
         function resetScores() {
             state.scoreA = 0;
             state.scoreB = 0;
             updateDisplay();
+            saveState();
             showToast("Current set scores reset to 0-0.");
         }
 
@@ -675,10 +697,10 @@
             state.setsB = 0;
             state.setNum = 1;
             updateDisplay();
+            saveState();
             showToast("Match completely reset.");
         }
 
-        // Confetti Celebration Effect
         function fireConfetti() {
             if (typeof confetti === 'function') {
                 confetti({
@@ -690,7 +712,6 @@
             }
         }
 
-        // Winner Animations & Modal
         function triggerSetWinnerModal() {
             const winner = state.scoreA >= state.scoreB ? state.teamA : state.teamB;
             const winningScore = state.scoreA >= state.scoreB ? `${state.scoreA} - ${state.scoreB}` : `${state.scoreB} - ${state.scoreA}`;
@@ -734,13 +755,6 @@
             }, 300);
         }
 
-        function toggleMobileDock() {
-            const dock = document.getElementById('mobile-touch-dock');
-            if (dock) {
-                dock.classList.toggle('hidden');
-            }
-        }
-
         let isOBSMode = false;
         let floatingWidget = null;
 
@@ -777,7 +791,7 @@
                     <div class="flex items-center space-x-1">
                         <span class="text-red-400 font-semibold">B:</span>
                         <button onclick="modifyScore('b', 1)" class="bg-red-600 hover:bg-red-500 text-white font-bold px-2.5 py-1 rounded">+1</button>
-                        <button onclick="modifyScore('b', -1)" class="bg-red-900 hover:bg-red-800 text-white font-bold px-2 py-1 rounded">-1</button>
+                        <button onclick="modifyScore('b', -1)" class="bg-red-900 hover:bg-red-800 text-white font-bold px-2.5 py-1 rounded">-1</button>
                     </div>
                     <button onclick="triggerSetWinnerModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-2.5 py-1 rounded shadow">Set Win</button>
                     <button onclick="triggerMatchWinnerModal()" class="bg-festivalRed hover:bg-red-600 text-white font-extrabold px-2.5 py-1 rounded shadow">Match Win</button>
@@ -824,7 +838,6 @@
             }, 3500);
         }
 
-        // Listen for standard storage events across tabs
         window.addEventListener('storage', (event) => {
             if (event.key === STORAGE_KEY) {
                 loadState();
@@ -832,7 +845,6 @@
             }
         });
 
-        // Initialize display on startup & setup fast polling for OBS browser sources
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('obs') === 'true') {
@@ -841,12 +853,13 @@
 
             loadState();
             renderUI();
+            initMQTT();
 
-            // Real-time interval check ensuring OBS overlay is always synced with latest saved state
+            // Periodic backup polling to ensure 100% UI consistency across all open devices
             setInterval(() => {
                 loadState();
                 renderUI();
-            }, 100);
+            }, 500);
         };
     </script>
 </body>
